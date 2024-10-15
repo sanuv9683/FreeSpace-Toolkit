@@ -6,27 +6,26 @@
     <link href="css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<section class="container">
+<section class="container-fluid">
     <section class="row">
         <h1>FreeSpace ToolKit</h1>
         <div class="col-5">
             <div class="row">
-                <div class="col-2">
+                <div class="col-lg-2 col-md-12 mt-2">
                     <button class="btn btn-danger" id="send">Send</button>
                 </div>
-                <div class="col-10">
+                <div class="col-lg-10 col-md-12 mt-2">
                     <input id="inp" type="text" class="form-control" value="2203-106-900">
                 </div>
             </div>
 
 
         </div>
-        <div class="col-12 mt-4">
+        <div class="col-12 overflow-scroll mt-4">
             <table class="table table-bordered">
                 <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Value</th>
+                <tr >
+                    <th class="bg-danger text-white">Data</th>
                 </tr>
                 </thead>
                 <tbody id="tb">
