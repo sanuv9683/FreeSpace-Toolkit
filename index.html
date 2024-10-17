@@ -19,10 +19,13 @@
 <section class="container-fluid">
     <section class="row">
         <h1>FreeSpace ToolKit</h1>
-        <div class="col-5">
+        <div class="col-8">
             <div class="row">
                 <div class="col-lg-2 col-md-12 mt-2">
-                    <button class="btn btn-danger" id="send">Send</button>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="search">Search</button>
+                        <button class="btn btn-danger" id="clear">Clear</button>
+                    </div>
                 </div>
                 <div class="col-lg-8 col-md-1 mt-2">
                     <input id="inp" type="text" class="form-control" value="2203-106-900">
@@ -56,7 +59,7 @@
         $("#inner-box").css('display','none');
     })
 
-    $('#send').click(function () {
+    $('#search').click(function () {
         $("#tb").empty();
         $("#inner-box").css('display','block');
         let text=$("#inp").val();
@@ -73,9 +76,19 @@
                             </tr>`;
                  $("#tb").append(row);
                 }
-
+            },
+            error:function (res){
+                $("#inner-box").css('display','none');
+                alert("Something Wrong - Check ID");
+                $("#inp").focus();
             }
         });
+    });
+
+    $("#clear").click(function (){
+        $("#tb").empty();
+        $("#inp").val("");
+        $("#inp").focus();
     });
 </script>
 </body>
