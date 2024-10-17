@@ -5,6 +5,15 @@
     <title>FreeSpace Toolkit</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #inner-box{
+            width: 92px;
+            height: 39px;
+            background: url("images/loader.gif");
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
 </head>
 <body>
 <section class="container-fluid">
@@ -15,12 +24,14 @@
                 <div class="col-lg-2 col-md-12 mt-2">
                     <button class="btn btn-danger" id="send">Send</button>
                 </div>
-                <div class="col-lg-10 col-md-12 mt-2">
+                <div class="col-lg-8 col-md-1 mt-2">
                     <input id="inp" type="text" class="form-control" value="2203-106-900">
                 </div>
+                <div class="col-lg-2 col-md-4 mt-2">
+                    <div id="inner-box">
+                    </div>
+                </div>
             </div>
-
-
         </div>
         <div class="col-12 overflow-scroll mt-4">
             <table class="table table-bordered">
@@ -40,12 +51,19 @@
 
 <script src="js/jquery-3.7.1.min.js"></script>
 <script>
+
+    $(function (){
+        $("#inner-box").css('display','none');
+    })
+
     $('#send').click(function () {
         $("#tb").empty();
+        $("#inner-box").css('display','block');
         let text=$("#inp").val();
         $.ajax({
             "url": `https://tools.afreespace.com/bless/debug.php?id=${text}`,
             success: function (res) {
+                $("#inner-box").css('display','none');
                 console.log(res);
                 let a = res.split('<br/>');
                 console.log(a)
