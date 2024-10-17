@@ -3,17 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>FreeSpace Toolkit</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        #inner-box{
-            width: 92px;
-            height: 39px;
-            background: url("images/loader.gif");
-            background-size: cover;
-            background-position: center;
-        }
-    </style>
+    <link href="css/styles.css" rel="stylesheet">
 </head>
 <body>
 <section class="container-fluid">
@@ -28,7 +20,7 @@
                     </div>
                 </div>
                 <div class="col-lg-8 col-md-1 mt-2">
-                    <input id="inp" type="text" class="form-control" value="2203-106-900">
+                    <input class="form-control" id="inp" type="text" value="2203-106-900">
                 </div>
                 <div class="col-lg-2 col-md-4 mt-2">
                     <div id="inner-box">
@@ -39,7 +31,8 @@
         <div class="col-12 overflow-scroll mt-4">
             <table class="table table-bordered">
                 <thead>
-                <tr >
+                <tr>
+                    <th class="bg-danger text-white">No</th>
                     <th class="bg-danger text-white">Data</th>
                 </tr>
                 </thead>
@@ -55,41 +48,61 @@
 <script src="js/jquery-3.7.1.min.js"></script>
 <script>
 
-    $(function (){
-        $("#inner-box").css('display','none');
+    //hide the loader
+    $(function () {
+        hideLoader();
     })
 
-    $('#search').click(function () {
+    function hideLoader() {
+        $("#inner-box").css('display', 'none');
+    }
+
+    function showLoader() {
+        $("#inner-box").css('display', 'block');
+    }
+
+    function clearTable() {
         $("#tb").empty();
-        $("#inner-box").css('display','block');
-        let text=$("#inp").val();
+    }
+
+    $('#search').click(function () {
+        clearTable();
+        showLoader();
+
+        let text = $("#inp").val();
+
         $.ajax({
             "url": `https://tools.afreespace.com/bless/debug.php?id=${text}`,
             success: function (res) {
-                $("#inner-box").css('display','none');
-                console.log(res);
+                hideLoader();
+
                 let a = res.split('<br/>');
-                console.log(a)
-                for (let i = 1; i < a.length; i++) {
-                 var row= `<tr>
+
+                for (let i = 0; i < a.length; i++) {
+                    let row = `<tr>
+                                <td>${i}</td>
                                 <td>${a[i]}</td>
                             </tr>`;
-                 $("#tb").append(row);
+                    $("#tb").append(row);
                 }
             },
-            error:function (res){
-                $("#inner-box").css('display','none');
+            error: function (res) {
+                hideLoader();
                 alert("Something Wrong - Check ID");
-                $("#inp").focus();
+                clearAll();
             }
         });
     });
 
-    $("#clear").click(function (){
-        $("#tb").empty();
+    $("#clear").click(function () {
+        clearAll();
+    });
+
+    function clearAll() {
+        clearTable();
         $("#inp").val("");
         $("#inp").focus();
-    });
+    }
 </script>
 </body>
 </html>
