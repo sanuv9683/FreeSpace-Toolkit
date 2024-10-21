@@ -64,7 +64,8 @@
     function clearTable() {
         $("#tb").empty();
     }
-    let ab;
+
+
     $('#search').click(function () {
         clearTable();
         showLoader();
@@ -73,17 +74,29 @@
 
         $.ajax({
             "url": `https://tools.afreespace.com/bless/debug.php?id=${text}`,
-            success: function (res) {
+            success: function (response) {
                 hideLoader();
 
-                let a = res.split('<br/>');
-                ab=a;
-                for (let i = 0; i < a.length; i++) {
-                    let row = `<tr>
+                let formatedResponse = response
+                    .replace(/<hr\/>/g, '')
+                    .replace(/<hr>/g, '')
+                    .replace(/"/g, '')
+                    .replace(/,/g, '')
+                    .replace(/\\/g, '');
+
+                let fr = formatedResponse.split('<br/>');
+
+                for (let i = 0; i < fr.length; i++) {
+                    if (i>18){
+                        let row = `<tr>
                                 <td>${i}</td>
-                                <td>${a[i]}</td>
+                                <td>${fr[i]}</td>
                             </tr>`;
-                    $("#tb").append(row);
+                        $("#tb").append(row);
+                    }else{
+                        printResponse(fr[i],i);
+                    }
+
                 }
             },
             error: function (res) {
@@ -97,6 +110,19 @@
     $("#clear").click(function () {
         clearAll();
     });
+
+    function printResponse(param,i){
+       let a= param.split(':');
+       let c=a[0].toUpperCase();
+       let d=a[1];
+       if (i==2) d=`<a href="${a[1]+":"+a[2]}">${a[1]+":"+a[2]}</a>`;
+
+        let row = `<tr>
+                   <td>${i}</td>
+                   <td>${c} : ${d}</td>
+                   </tr>`;
+        $("#tb").append(row);
+    }
 
     function clearAll() {
         clearTable();
