@@ -41,6 +41,18 @@
                 </tbody>
             </table>
         </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="deviceInfo" class="card">
+                    <div class="card-header">Device Information</div>
+                    <div class="card-body">
+                        <ul id="deviceData" class="list-group">
+                            <!-- Data will be dynamically inserted here -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 </section>
 
@@ -88,11 +100,40 @@
 
                 for (let i = 0; i < fr.length; i++) {
                     if (i>18){
-                        let row = `<tr>
+                        if (i===19){
+                            // Function to extract all key-value pairs using regex
+                            let m=extractAllData();
+                            console.log(m);
+                            function extractAllData() {
+                                const regex = /([a-zA-Z0-9_]+):\s*([^{}\s]+)/g;
+                                let match;
+                                let data = {};
+
+                                while ((match = regex.exec(fr[i])) !== null) {
+                                    data[match[1]] = match[2];
+                                }
+
+                                return data;
+                            }
+                            let html = '';
+
+                            // Dynamically generate the list items for each key-value pair
+                            for (let key in m) {
+                                html += `<li class="list-group-item"><strong>${key}:</strong> ${m[key]}</li>`;
+                            }
+
+                            // Display the data in the UI
+                            $('#deviceData').html(html);
+
+
+                        }else{
+                            let row = `<tr>
                                 <td>${i}</td>
                                 <td>${fr[i]}</td>
                             </tr>`;
-                        $("#tb").append(row);
+                            $("#tb").append(row);
+                        }
+
                     }else{
                         printResponse(fr[i],i);
                     }
