@@ -103,7 +103,7 @@
                         if (i===19){
                             // Function to extract all key-value pairs using regex
                             let m=extractAllData();
-                            console.log(m);
+
                             function extractAllData() {
                                 const regex = /([a-zA-Z0-9_]+):\s*([^{}\s]+)/g;
                                 let match;
@@ -156,7 +156,7 @@
        let a= param.split(':');
        let c=a[0].toUpperCase();
        let d=a[1];
-       if (i==2) d=`<a href="${a[1]+":"+a[2]}">${a[1]+":"+a[2]}</a>`;
+       if (i==2) d=`<a target="_blank" href="${a[1]+":"+a[2]}">${a[1]+":"+a[2]}</a>`;
 
         let row = `<tr>
                    <td>${i}</td>
@@ -169,6 +169,7 @@
         clearTable();
         $("#inp").val("");
         $("#inp").focus();
+        $('#deviceData').empty();
     }
 </script>
 </body>
