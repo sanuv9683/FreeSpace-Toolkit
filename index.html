@@ -41,18 +41,17 @@
                 </tbody>
             </table>
         </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div id="deviceInfo" class="card">
-                    <div class="card-header">Device Information</div>
-                    <div class="card-body">
-                        <ul id="deviceData" class="list-group">
-                            <!-- Data will be dynamically inserted here -->
-                        </ul>
-                    </div>
+        <div class="col-12 col-md-12">
+            <div class="card" id="deviceInfo">
+                <div class="card-header bg-warning">Device Information</div>
+                <div class="card-body">
+                    <ul class="list-group" id="deviceData">
+                        <!-- Data will be dynamically inserted here -->
+                    </ul>
                 </div>
             </div>
         </div>
+
     </section>
 </section>
 
@@ -105,10 +104,10 @@
                 let fr = formatedResponse.split('<br/>');
 
                 for (let i = 0; i < fr.length; i++) {
-                    if (i>18){
-                        if (i===19){
+                    if (i > 18) {
+                        if (i === 19) {
                             // Function to extract all key-value pairs using regex
-                            let m=extractAllData();
+                            let m = extractAllData();
 
                             function extractAllData() {
                                 const regex = /([a-zA-Z0-9_]+):\s*([^{}\s]+)/g;
@@ -121,6 +120,7 @@
 
                                 return data;
                             }
+
                             let html = '';
 
                             // Dynamically generate the list items for each key-value pair
@@ -132,7 +132,7 @@
                             $('#deviceData').html(html);
 
 
-                        }else{
+                        } else {
                             let row = `<tr>
                                 <td>${i}</td>
                                 <td>${fr[i]}</td>
@@ -140,8 +140,8 @@
                             $("#tb").append(row);
                         }
 
-                    }else{
-                        printResponse(fr[i],i);
+                    } else {
+                        printResponse(fr[i], i);
                     }
 
                 }
@@ -158,11 +158,11 @@
         clearAll();
     });
 
-    function printResponse(param,i){
-       let a= param.split(':');
-       let c=a[0].toUpperCase();
-       let d=a[1];
-       if (i===2) d=`<a target="_blank" href="${a[1]+":"+a[2]}">${a[1]+":"+a[2]}</a>`;
+    function printResponse(param, i) {
+        let a = param.split(':');
+        let c = a[0].toUpperCase();
+        let d = a[1];
+        if (i === 2) d = `<a target="_blank" href="${a[1] + ":" + a[2]}">${a[1] + ":" + a[2]}</a>`;
 
         let row = `<tr>
                    <td>${i}</td>
