@@ -9,3 +9,22 @@
 #str{
     color: #dc3545;;
 }
+
+/* Custom styling for the footer */
+.footer {
+    background-color: #343a40; /* Dark background */
+    color: #e7dbdbcc;              /* White text */
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 11px;
+}
+.footer a {
+    color: #33b0d7;            /* Bootstrap blue for link */
+    text-decoration: none;
+}
+.footer a:hover {
+    color: #00ffe7;            /* Darker shade on hover */
+}
