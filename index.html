@@ -69,6 +69,40 @@
         hideLoader();
     })
 
+    function convertToBritishTime(inputString) {
+        // Regular expression to match _time fields in UTC format
+        const regex = /_time":\s*"(\d{4}-\d{2}-\d{2})\s(\d{2}):(\d{2}):(\d{2})\sUTC"/g;
+
+        // Replace function to process each match
+        const resultString = inputString.replace(regex, (match, date, hours, minutes, seconds) => {
+            // Create a Date object from the extracted components
+            const utcDate = new Date(`${date}T${hours}:${minutes}:${seconds}Z`);
+
+            // Convert to British time (BST or GMT)
+            const options = {
+                timeZone: 'Europe/London',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true // 12-hour format
+            };
+
+            // Format date to British time string
+            const britishTime = utcDate.toLocaleString('en-GB', options);
+
+            // Return the updated string with British time
+            return `_time": "${britishTime}"`;
+        });
+
+        return resultString;
+    }
+
+
+
+
     function hideLoader() {
         $("#inner-box").css('display', 'none');
     }
@@ -80,6 +114,7 @@
     function clearTable() {
         $("#tb").empty();
     }
+
 
 
     $('#search').click(function () {
@@ -94,12 +129,15 @@
                 hideLoader();
                 $('#deviceData').empty();
 
-                let formatedResponse = response
+                let resEdited=convertToBritishTime(response);
+
+                let formatedResponse = resEdited
                     .replace(/<hr\/>/g, '')
                     .replace(/<hr>/g, '')
                     .replace(/"/g, '')
                     .replace(/,/g, '')
                     .replace(/\\/g, '');
+
 
                 let fr = formatedResponse.split('<br/>');
 
