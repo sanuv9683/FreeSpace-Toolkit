@@ -19,10 +19,14 @@
                     <div class="btn-group">
                         <button class="btn btn-primary" id="search">Search</button>
                         <button class="btn btn-danger" id="clear">Clear</button>
+                        <button class="btn btn-warning" id="qrStp">Stop Reader</button>
                     </div>
                 </div>
                 <div class="col-9 col-md-5 mt-2">
-                    <input class="form-control" id="inp" type="text" value="1901-101-455">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" value="1901-101-455" id="inp" placeholder="Device ID">
+                        <button class="btn btn-primary" type="button" id="btnCpy">Copy</button>
+                    </div>
                 </div>
                 <div class="col-3 col-md-3  mt-2">
                     <div id="inner-box">
@@ -174,6 +178,10 @@
         searchData();
     });
 
+    $("#qrStp").click(function (){
+        qrReader.stop();
+    });
+
     $("#clear").click(function () {
         clearAll();
     });
@@ -197,6 +205,24 @@
         $("#inp").focus();
         $('#deviceData').empty();
         startScanner();
+    }
+
+    $("#btnCpy").click(function (){
+        copyToClipboard();
+    });
+    function copyToClipboard() {
+        // Select the input field
+        const inputField = document.getElementById("inp");
+
+        // Select the text inside the input field
+        inputField.select();
+        inputField.setSelectionRange(0, 99999); // For mobile devices
+
+        // Copy the text inside the input field
+        document.execCommand("copy");
+
+        // Optional: Alert the copied text
+        alert("Copied the text: " + inputField.value);
     }
 </script>
 
@@ -239,11 +265,6 @@
     // Start scanning on page load
     window.addEventListener('load', startScanner);
 
-    // Reset the scanner
-    function resetScanner() {
-        document.getElementById("scanned-text").textContent = "No content yet";
-        startScanner();
-    }
 </script>
 </body>
 </html>
