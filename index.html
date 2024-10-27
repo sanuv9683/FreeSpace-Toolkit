@@ -102,7 +102,7 @@
         $("#tb").empty();
     }
 
-    $('#search').click(function () {
+    function searchData(){
         clearTable();
         showLoader();
 
@@ -168,6 +168,10 @@
                 clearAll();
             }
         });
+    }
+
+    $('#search').click(function () {
+        searchData();
     });
 
     $("#clear").click(function () {
@@ -218,6 +222,7 @@
                         success:function (res){
                             let decodedID= $(res).find('#temp-table').children('tbody').children('tr:nth-child(1)').children('td:nth-child(2)').text();
                             $('#inp').val(decodedID);
+                            searchData();
                         }
                     });
                     qrReader.stop();
