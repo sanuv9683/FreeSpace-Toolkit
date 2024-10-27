@@ -74,6 +74,19 @@
 
 <script>
 
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "bottom-center",
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        }
+    });
+
+
     $(function () {
         hideLoader();
     })
@@ -247,7 +260,11 @@
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(inputField.value)
                 .then(() => {
-                    Swal.fire("Copied the text: " + inputField.value);
+                    Toast.fire({
+                        icon: "success",
+                        title: "Copied the text: " + inputField.value
+                    });
+                    // Swal.fire("Copied the text: " + inputField.value);
                     // alert("Copied the text: " + inputField.value);
                 })
                 .catch(err => {
@@ -270,7 +287,11 @@
             try {
                 const success = document.execCommand("copy");
                 if (success) {
-                    Swal.fire("Copied the text: " + inputField.value);
+                    Toast.fire({
+                        icon: "success",
+                        title: "Copied the text: " + inputField.value
+                    });
+                    // Swal.fire("Copied the text: " + inputField.value);
                     // alert("Copied the text: " + inputElement.value);
                 } else {
                     throw new Error("execCommand failed");
@@ -299,6 +320,11 @@
                 searchData();
                 codeReader.reset();
                fadeOutQr();
+
+                Toast.fire({
+                    icon: "success",
+                    title: "Signed in successfully"
+                });
             }
         });
     }
