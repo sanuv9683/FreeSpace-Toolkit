@@ -237,7 +237,6 @@
         $("#tb").append(row);
     }
 
-
     function clearAll() {
         clearTable();
         $("#inp").val("");
@@ -256,6 +255,7 @@
         // Focus the input field for Safari compatibility
         inputField.focus();
         inputField.select();
+        inputField.setSelectionRange(0, 99999);
 
         // Attempt Clipboard API if supported
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -267,44 +267,12 @@
                     });
                 })
                 .catch(err => {
-                    fallbackCopy(inputField);
+                    console.log(err);
                 });
-        } else {
-            // Fallback for older devices or if Clipboard API fails
-            fallbackCopy(inputField);
         }
     }
 
-    // Fallback copy function using execCommand
-    function fallbackCopy(inputElement) {
-        // Small delay for Safari reliability
-        setTimeout(() => {
-            inputElement.select();
-            inputElement.setSelectionRange(0, 99999); // For mobile devices
 
-            try {
-                const success = document.execCommand("copy");
-                if (success) {
-                    Toast.fire({
-                        icon: "success",
-                        title: "Copied the text: " + inputField.value
-                    });
-                    // Swal.fire("Copied the text: " + inputField.value);
-                    // alert("Copied the text: " + inputElement.value);
-                } else {
-                    throw new Error("execCommand failed");
-                }
-            } catch (err) {
-                console.error("Fallback execCommand failed:", err);
-                manualCopyPrompt(inputElement.value);
-            }
-        }, 100); // Add a small delay for Safari
-    }
-
-    // Prompt the user to manually copy if all else fails
-    function manualCopyPrompt(text) {
-        $("#btnCpy").click();
-    }
 
     function getDeviceID(decodedText) {
         $.ajax({
