@@ -213,26 +213,44 @@
 
     function copyToClipboard() {
         const inputField = document.getElementById("inp");
-        inputField.select();
-        inputField.setSelectionRange(0, 99999);
-        if (document.hasFocus()) {
-            if (navigator.clipboard) {
-                // Use Clipboard API if available
-                navigator.clipboard.writeText(inputField.value)
-                    .then(() => {
-                        alert("Copied the text: " + inputField.value);
-                    })
-                    .catch(err => {
-                        console.error("Failed to copy text: ", err);
-                    });
-            } else {
-                // Fallback for older browsers (not widely needed now)
-                inputField.select();
-                inputField.setSelectionRange(0, 99999); // For mobile compatibility
-                document.execCommand("copy"); // Deprecated, but acts as fallback
-                alert("Copied the text: " + inputField.value);
-            }
+
+        // Attempt to use the Clipboard API
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(inputField.value)
+                .then(() => {
+                    alert("Copied the text: " + inputField.value);
+                })
+                .catch(err => {
+                    console.error("Clipboard API failed:", err);
+                    fallbackCopy(inputField);
+                });
+        } else {
+            // Fallback for older devices
+            fallbackCopy(inputField);
         }
+    }
+
+    // Fallback copy function using execCommand
+    function fallbackCopy(inputElement) {
+        inputElement.select();
+        inputElement.setSelectionRange(0, 99999); // For mobile devices
+
+        try {
+            const success = document.execCommand("copy");
+            if (success) {
+                alert("Copied the text: " + inputElement.value);
+            } else {
+                throw new Error("execCommand failed");
+            }
+        } catch (err) {
+            console.error("Fallback execCommand failed:", err);
+            manualCopyPrompt(inputElement.value);
+        }
+    }
+
+    // Prompt the user to manually copy if all else fails
+    function manualCopyPrompt(text) {
+        alert("Copy failed. Please manually select and copy this text:\n\n" + text);
     }
 
 
