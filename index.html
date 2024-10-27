@@ -115,6 +115,8 @@
         $.ajax({
             "url": `https://tools.afreespace.com/bless/debug.php?id=${text}`,
             success: function (response) {
+                copyToClipboard();
+
                 hideLoader();
                 $('#deviceData').empty();
 
@@ -211,18 +213,10 @@
         copyToClipboard();
     });
     function copyToClipboard() {
-        // Select the input field
         const inputField = document.getElementById("inp");
-
-        // Select the text inside the input field
         inputField.select();
-        inputField.setSelectionRange(0, 99999); // For mobile devices
-
-        // Copy the text inside the input field
+        inputField.setSelectionRange(0, 99999);
         document.execCommand("copy");
-
-        // Optional: Alert the copied text
-        alert("Copied the text: " + inputField.value);
     }
 </script>
 
