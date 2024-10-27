@@ -58,7 +58,8 @@
                   url:decodedText,
                   success:function (res){
                    let decodedID= $(res).find('#temp-table').children('tbody').children('tr:nth-child(1)').children('td:nth-child(2)').text();
-                    document.getElementById("scanned-text").textContent = decodedID;
+                    // document.getElementById("scanned-text").textContent = decodedID;
+                    $('#scanned-text').text(decodedID);
                   }
                 });
                 qrReader.stop();
