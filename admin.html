@@ -12,7 +12,7 @@
     <section class="row">
         <h1>FreeSpace ToolKit</h1>
         <div class="d-flex justify-content-center">
-            <video height="200" id="video"  width="300"></video>
+            <video style="display: none" height="200" id="video"  width="300"></video>
         </div>
         <div class="col-12 bg-white sticky-top pb-2">
             <div class="row">
@@ -182,12 +182,21 @@
         searchData();
     });
 
+    function fadeOutQr(){
+        $("#video").css('display','none');
+    }
+    function fadeInQr(){
+        $("#video").css('display','block');
+    }
+
     let onOff = 1;
     $("#qrStp").click(function () {
         if (onOff === 1) {
             codeReader.reset();
+            fadeOutQr();
             onOff = 0;
         } else {
+            fadeInQr();
             decodeOnce(codeReader, 0);
             onOff = 1;
         }
@@ -288,12 +297,13 @@
                 copyToClipboard();
                 searchData();
                 codeReader.reset();
-                $('#video').fadeOut(1000);
+               fadeOutQr();
             }
         });
     }
 
     let codeReader;
+
     window.addEventListener('load', function () {
         let selectedDeviceId;
         codeReader = new ZXing.BrowserQRCodeReader()
@@ -337,15 +347,14 @@
     })
 
     function decodeOnce(codeReader, selectedDeviceId) {
-        $('#video').fadeIn(1000);
+        fadeInQr();
+
         codeReader.decodeFromInputVideoDevice(selectedDeviceId, 'video').then((result) => {
             //print the result
-            // document.getElementById('result').textContent = result.text;
             getDeviceID(result.text);
 
         }).catch((err) => {
             console.error(err);
-            // document.getElementById('result').textContent = err
         })
     }
 
