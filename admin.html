@@ -5,7 +5,7 @@
     <title>FreeSpace Toolkit</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/styles.css?v=1.0" rel="stylesheet">
+    <link href="css/styles.css?v=1.1" rel="stylesheet">
     <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>-->
 </head>
 <body>
@@ -21,7 +21,7 @@
                     <div class="btn-group">
                         <button class="btn btn-primary" id="search">Search</button>
                         <button class="btn btn-danger" id="clear">Clear</button>
-                        <button class="btn btn-warning" id="qrStp">Stop Reader</button>
+                        <button class="btn btn-warning" id="qrStp">Start/Stop</button>
                     </div>
                 </div>
                 <div class="col-9 col-md-5 mt-2">
@@ -183,12 +183,21 @@
         searchData();
     });
 
+    let onOff=1;
     $("#qrStp").click(function () {
-        codeReader.reset();
+        if (onOff===1){
+            codeReader.reset();
+            onOff=0;
+        }else{
+            decodeOnce(codeReader,0);
+            onOff=1;
+        }
+
     });
 
     $("#clear").click(function () {
         clearAll();
+        codeReader.reset();
         decodeOnce(codeReader,0)
     });
 
@@ -334,8 +343,8 @@
             getDeviceID(result.text);
 
         }).catch((err) => {
-            console.error(err)
-            document.getElementById('result').textContent = err
+            console.error(err);
+            // document.getElementById('result').textContent = err
         })
     }
 

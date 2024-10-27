@@ -28,9 +28,3 @@
 .footer a:hover {
     color: #00ffe7;            /* Darker shade on hover */
 }
-
-#qr-reader {
-    width: 100%;
-    max-width: 400px;
-    margin: 20px auto;
-}
