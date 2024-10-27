@@ -68,6 +68,7 @@
     </p>
 </footer>
 <script src="js/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 
     $(function () {
@@ -223,7 +224,8 @@
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(inputField.value)
                 .then(() => {
-                    alert("Copied the text: " + inputField.value);
+                    Swal.fire("Copied the text: " + inputField.value);
+                    // alert("Copied the text: " + inputField.value);
                 })
                 .catch(err => {
                     console.error("Clipboard API failed:", err);
@@ -245,7 +247,8 @@
             try {
                 const success = document.execCommand("copy");
                 if (success) {
-                    alert("Copied the text: " + inputElement.value);
+                    Swal.fire("Copied the text: " + inputField.value);
+                    // alert("Copied the text: " + inputElement.value);
                 } else {
                     throw new Error("execCommand failed");
                 }
@@ -258,7 +261,8 @@
 
     // Prompt the user to manually copy if all else fails
     function manualCopyPrompt(text) {
-        alert("Copy failed. Please manually select and copy this text:\n\n" + text);
+        Swal.fire("Copy failed. Please manually select and copy this text:\n\n" + text);
+        // alert("Copy failed. Please manually select and copy this text:\n\n" + text);
     }
 
     // Initialize QR Code Reader
