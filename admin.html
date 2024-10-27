@@ -12,9 +12,7 @@
 <section class="container-fluid">
     <section class="row">
         <h1>FreeSpace ToolKit</h1>
-        <div id="qr-reader">
-            <video height="200" id="video" style="border: 1px solid gray" width="300"></video>
-        </div>
+        <video style="display: none" height="200" id="video"  width="300"></video>
         <div class="col-12 bg-white sticky-top pb-2">
             <div class="row">
                 <div class="col-12 col-sm-4 col-md-4 col-lg-3  mt-2">
@@ -183,14 +181,14 @@
         searchData();
     });
 
-    let onOff=1;
+    let onOff = 1;
     $("#qrStp").click(function () {
-        if (onOff===1){
+        if (onOff === 1) {
             codeReader.reset();
-            onOff=0;
-        }else{
-            decodeOnce(codeReader,0);
-            onOff=1;
+            onOff = 0;
+        } else {
+            decodeOnce(codeReader, 0);
+            onOff = 1;
         }
 
     });
@@ -198,7 +196,7 @@
     $("#clear").click(function () {
         clearAll();
         codeReader.reset();
-        decodeOnce(codeReader,0)
+        decodeOnce(codeReader, 0)
     });
 
     function printResponse(param, i) {
@@ -289,6 +287,7 @@
                 copyToClipboard();
                 searchData();
                 codeReader.reset();
+                $('#video').fadeOut(1000);
             }
         });
     }
@@ -337,6 +336,7 @@
     })
 
     function decodeOnce(codeReader, selectedDeviceId) {
+        $('#video').fadeIn(1000);
         codeReader.decodeFromInputVideoDevice(selectedDeviceId, 'video').then((result) => {
             //print the result
             // document.getElementById('result').textContent = result.text;
