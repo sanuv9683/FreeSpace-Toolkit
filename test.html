@@ -4,76 +4,50 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QR Code Scanner</title>
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <!-- AdminLTE (optional) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@3.1/dist/css/adminlte.min.css">
   <style>
-    #qr-reader {
-      width: 100%;
-      max-width: 400px;
-      margin: 20px auto;
-    }
-    .content {
-      margin-top: 20px;
-    }
+    #qr-reader { width: 100%; max-width: 400px; margin: auto; }
+    #result { font-size: 1.2em; font-weight: bold; color: #007bff; text-align: center; }
   </style>
 </head>
-<body>
+<body class="bg-light">
 
-<!-- Page Content -->
-<div class="container text-center mt-5">
-  <!-- QR Code Reader -->
-
-
-
-
-  <!-- Reload Button -->
-  <button class="btn btn-secondary mt-3" onclick="resetScanner()">Reset Scanner</button>
+<div class="container py-5">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white text-center">
+      <h4>QR Code Scanner</h4>
+    </div>
+    <div class="card-body">
+      <div id="qr-reader" class="mx-auto"></div>
+      <p id="result" class="mt-4">Scan a QR Code to see the result here</p>
+    </div>
+  </div>
 </div>
-<script src="js/jquery-3.7.1.min.js"></script>
+
+<!-- JavaScript Libraries -->
+<!--<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.2.1/minified/html5-qrcode.min.js"></script>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 <script>
-  // Initialize QR Code Reader
+  // Initialize QR scanner
   const qrReader = new Html5Qrcode("qr-reader");
 
+  function onScanSuccess(decodedText, decodedResult) {
+    document.getElementById("result").innerText = `Scanned Result: ${decodedText}`;
+    qrReader.stop().catch(err => console.log(err));
+  }
+
   function startScanner() {
-    // Request a list of cameras to select the primary (main) rear camera
-    Html5Qrcode.getCameras().then(devices => {
-      // Select the first rear camera (usually the main camera)
-      const mainCamera = devices.find(device => device.label.toLowerCase().includes("back") || device.label.toLowerCase().includes("rear"));
-      const cameraId = mainCamera ? mainCamera.id : { facingMode: "environment" };
-
-      qrReader.start(
-              cameraId,
-              { fps: 10, qrbox: 250 },
-              (decodedText) => {
-
-                $.ajax({
-                  //https://q.afreespace.com/m3sUkpAz
-                  url:decodedText.replace("http://", "https://"),
-                  success:function (res){
-                   let decodedID= $(res).find('#temp-table').children('tbody').children('tr:nth-child(1)').children('td:nth-child(2)').text();
-                    $('#scanned-text').text(decodedID);
-                  }
-                });
-                qrReader.stop();
-              },
-              (errorMessage) => {
-                console.warn(`QR Code scan error: ${errorMessage}`);
-              }
-      );
-    }).catch(err => {
-      console.error("Error accessing cameras:", err);
-    });
+    qrReader.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            onScanSuccess
+    ).catch(err => console.error("Error starting QR Scanner: ", err));
   }
 
-  // Start scanning on page load
-  window.addEventListener('load', startScanner);
-
-  // Reset the scanner
-  function resetScanner() {
-    document.getElementById("scanned-text").textContent = "No content yet";
-    startScanner();
-  }
+  startScanner();  // Start scanner on page load
 </script>
-
 </body>
 </html>
