@@ -36,24 +36,12 @@
   <!-- Reload Button -->
   <button class="btn btn-secondary mt-3" onclick="resetScanner()">Reset Scanner</button>
 </div>
-
+<script src="js/jquery-3.7.1.min.js"></script>
 <script>
   // Initialize QR Code Reader
   const qrReader = new Html5Qrcode("qr-reader");
 
-  // function startScanner() {
-  //   qrReader.start(
-  //           { facingMode: "environment" },
-  //           { fps: 10, qrbox: 250 },
-  //           (decodedText) => {
-  //             document.getElementById("scanned-text").textContent = decodedText;
-  //             qrReader.stop();
-  //           },
-  //           (errorMessage) => {
-  //             console.warn(`QR Code scan error: ${errorMessage}`);
-  //           }
-  //   );
-  // }
+
   function startScanner() {
     // Request a list of cameras to select the primary (main) rear camera
     Html5Qrcode.getCameras().then(devices => {
@@ -65,7 +53,14 @@
               cameraId,
               { fps: 10, qrbox: 250 },
               (decodedText) => {
-                document.getElementById("scanned-text").textContent = decodedText;
+
+                $.ajax({
+                  url:decodedText,
+                  success:function (res){
+                   let decodedID= $(res).find('#temp-table').children('tbody').children('tr:nth-child(1)').children('td:nth-child(2)').text();
+                    document.getElementById("scanned-text").textContent = decodedID;
+                  }
+                });
                 qrReader.stop();
               },
               (errorMessage) => {
