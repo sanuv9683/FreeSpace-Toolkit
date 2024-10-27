@@ -213,24 +213,24 @@
 
     function copyToClipboard() {
         const inputField = document.getElementById("inp");
-        // inputField.select();
+        inputField.select();
         if (document.hasFocus()) {
-            // if (navigator.clipboard) {
-            //     // Use Clipboard API if available
-            //     navigator.clipboard.writeText(inputField.value)
-            //         .then(() => {
-            //             alert("Copied the text: " + inputField.value);
-            //         })
-            //         .catch(err => {
-            //             console.error("Failed to copy text: ", err);
-            //         });
-            // } else {
+            if (navigator.clipboard) {
+                // Use Clipboard API if available
+                navigator.clipboard.writeText(inputField.value)
+                    .then(() => {
+                        alert("Copied the text: " + inputField.value);
+                    })
+                    .catch(err => {
+                        console.error("Failed to copy text: ", err);
+                    });
+            } else {
                 // Fallback for older browsers (not widely needed now)
                 inputField.select();
                 inputField.setSelectionRange(0, 99999); // For mobile compatibility
                 document.execCommand("copy"); // Deprecated, but acts as fallback
                 alert("Copied the text: " + inputField.value);
-            // }
+            }
         }
     }
 
