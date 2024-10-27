@@ -200,12 +200,15 @@
         $("#tb").append(row);
     }
 
+    // Initialize QR Code Reader
+    const qrReader = new Html5Qrcode("qr-reader");
+
     function clearAll() {
         clearTable();
         $("#inp").val("");
         $("#inp").focus();
         $('#deviceData').empty();
-        qrReader.stop();
+       if (qrReader!=null) qrReader.stop();
         startScanner();
     }
 
@@ -265,8 +268,7 @@
         // alert("Copy failed. Please manually select and copy this text:\n\n" + text);
     }
 
-    // Initialize QR Code Reader
-    const qrReader = new Html5Qrcode("qr-reader");
+
 
     function startScanner() {
         // Request a list of cameras to select the primary (main) rear camera
