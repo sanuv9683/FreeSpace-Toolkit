@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FreeSpace Toolkit</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/styles.css?v=1.0" rel="stylesheet">
+    <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>-->
+</head>
+<body>
+<section class="container-fluid">
+    <section class="row">
+        <h1>FreeSpace ToolKit</h1>
+        <div id="qr-reader">
+            <video height="200" id="video" style="border: 1px solid gray" width="300"></video>
+        </div>
+        <div class="col-12 bg-white sticky-top pb-2">
+            <div class="row">
+                <div class="col-12 col-sm-4 col-md-4 col-lg-3  mt-2">
+                    <div class="btn-group">
+                        <button class="btn btn-primary" id="search">Search</button>
+                        <button class="btn btn-danger" id="clear">Clear</button>
+                        <button class="btn btn-warning" id="qrStp">Stop Reader</button>
+                    </div>
+                </div>
+                <div class="col-9 col-md-5 mt-2">
+                    <div class="input-group mb-3">
+                        <input class="form-control" id="inp" placeholder="Device ID" type="text" value="1901-101-455">
+                        <button class="btn btn-primary" id="btnCpy" type="button">Copy</button>
+                    </div>
+                </div>
+                <div class="col-3 col-md-3  mt-2">
+                    <div id="inner-box">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 overflow-scroll mt-4">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th class="bg-danger text-white">No</th>
+                    <th class="bg-danger text-white">Data</th>
+                </tr>
+                </thead>
+                <tbody id="tb">
+
+                </tbody>
+            </table>
+        </div>
+        <div class="col-12 col-md-12">
+            <div class="card" id="deviceInfo">
+                <div class="card-header bg-danger text-white">Device Information</div>
+                <div class="card-body">
+                    <ul class="list-group" id="deviceData">
+                        <!-- Data will be dynamically inserted here -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</section>
+
+<!-- Footer Section -->
+<footer class="footer">
+    <p class="mb-0">
+        Developed by <a href="https://sanuv.uk" target="_blank">Sanu Vithanage</a> © 2024
+    </p>
+</footer>
+<script src="js/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/@zxing/library@latest" type="text/javascript"></script>
+
+<script>
+
+    $(function () {
+        hideLoader();
+    })
+
+    function convertToBritishTime(inputString) {
+        const regex = /_time":\s*"(\d{4}-\d{2}-\d{2})\s(\d{2}):(\d{2}):(\d{2})\sUTC"/g;
+        const resultString = inputString.replace(regex, (match, date, hours, minutes, seconds) => {
+            const utcDate = new Date(`${date}T${hours}:${minutes}:${seconds}Z`);
+            const options = {
+                timeZone: 'Europe/London',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            };
+            const britishTime = utcDate.toLocaleString('en-GB', options);
+            return `_time": "${britishTime}"`;
+        });
+        return resultString;
+    }
+
+    function hideLoader() {
+        $("#inner-box").css('display', 'none');
+    }
+
+    function showLoader() {
+        $("#inner-box").css('display', 'block');
+    }
+
+    function clearTable() {
+        $("#tb").empty();
+    }
+
+    function searchData() {
+        clearTable();
+        showLoader();
+
+        let text = $("#inp").val();
+
+        $.ajax({
+            "url": `https://tools.afreespace.com/bless/debug.php?id=${text}`,
+            success: function (response) {
+                hideLoader();
+                $('#deviceData').empty();
+
+                let resEdited = convertToBritishTime(response);
+
+                let formatedResponse = resEdited
+                    .replace(/<hr\/>/g, '')
+                    .replace(/<hr>/g, '')
+                    .replace(/"/g, '')
+                    .replace(/,/g, '')
+                    .replace(/\\/g, '');
+
+                let fr = formatedResponse.split('<br/>');
+
+                for (let i = 0; i < fr.length; i++) {
+                    if (i > 18) {
+                        if (i === 19) {
+                            // Function to extract all key-value pairs using regex
+                            let m = extractAllData();
+
+                            function extractAllData() {
+                                const regex = /([a-zA-Z0-9_]+):\s*([^{}\s]+)/g;
+                                let match;
+                                let data = {};
+
+                                while ((match = regex.exec(fr[i])) !== null) {
+                                    data[match[1]] = match[2];
+                                }
+                                return data;
+                            }
+
+                            let html = '';
+
+                            for (let key in m) {
+                                html += `<li class="list-group-item"><strong>${key}:</strong> ${m[key]}</li>`;
+                            }
+
+                            $('#deviceData').html(html);
+
+                        } else {
+                            let row = `<tr>
+                                <td>${i}</td>
+                                <td>${fr[i]}</td>
+                            </tr>`;
+                            $("#tb").append(row);
+                        }
+                    } else {
+                        printResponse(fr[i], i);
+                    }
+                }
+            },
+            error: function (res) {
+                hideLoader();
+                alert("Something Wrong - Check ID");
+                clearAll();
+            }
+        });
+    }
+
+    $('#search').click(function () {
+        searchData();
+    });
+
+    $("#qrStp").click(function () {
+        codeReader.reset();
+    });
+
+    $("#clear").click(function () {
+        clearAll();
+        decodeOnce(codeReader,0)
+    });
+
+    function printResponse(param, i) {
+        let a = param.split(':');
+        let c = a[0].toUpperCase();
+        let d = a[1];
+        if (i === 2) d = `<a target="_blank" href="${a[1] + ":" + a[2]}">${a[1] + ":" + a[2]}</a>`;
+
+        let row = `<tr>
+                   <td>${i}</td>
+                   <td><strong id="str">${c}</strong> : ${d}</td>
+                   </tr>`;
+        $("#tb").append(row);
+    }
+
+
+    function clearAll() {
+        clearTable();
+        $("#inp").val("");
+        $("#inp").focus();
+        $('#deviceData').empty();
+
+    }
+
+    $("#btnCpy").click(function () {
+        copyToClipboard();
+    });
+
+    function copyToClipboard() {
+        const inputField = document.getElementById("inp");
+
+        // Focus the input field for Safari compatibility
+        inputField.focus();
+        inputField.select();
+
+        // Attempt Clipboard API if supported
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(inputField.value)
+                .then(() => {
+                    Swal.fire("Copied the text: " + inputField.value);
+                    // alert("Copied the text: " + inputField.value);
+                })
+                .catch(err => {
+                    console.error("Clipboard API failed:", err);
+                    fallbackCopy(inputField);
+                });
+        } else {
+            // Fallback for older devices or if Clipboard API fails
+            fallbackCopy(inputField);
+        }
+    }
+
+    // Fallback copy function using execCommand
+    function fallbackCopy(inputElement) {
+        // Small delay for Safari reliability
+        setTimeout(() => {
+            inputElement.select();
+            inputElement.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                const success = document.execCommand("copy");
+                if (success) {
+                    Swal.fire("Copied the text: " + inputField.value);
+                    // alert("Copied the text: " + inputElement.value);
+                } else {
+                    throw new Error("execCommand failed");
+                }
+            } catch (err) {
+                console.error("Fallback execCommand failed:", err);
+                manualCopyPrompt(inputElement.value);
+            }
+        }, 100); // Add a small delay for Safari
+    }
+
+    // Prompt the user to manually copy if all else fails
+    function manualCopyPrompt(text) {
+        Swal.fire("Copy failed. Please manually select and copy this text:\n\n" + text);
+        // alert("Copy failed. Please manually select and copy this text:\n\n" + text);
+    }
+
+    function getDeviceID(decodedText) {
+        $.ajax({
+            //https://q.afreespace.com/m3sUkpAz
+            url: decodedText.replace("http://", "https://"),
+            success: function (res) {
+                let decodedID = $(res).find('#temp-table').children('tbody').children('tr:nth-child(1)').children('td:nth-child(2)').text();
+                $('#inp').val(decodedID);
+                copyToClipboard();
+                searchData();
+                codeReader.reset();
+            }
+        });
+    }
+
+    let codeReader;
+    window.addEventListener('load', function () {
+        let selectedDeviceId;
+        codeReader = new ZXing.BrowserQRCodeReader()
+        decodeOnce(codeReader, 0)
+
+        // codeReader.getVideoInputDevices()
+        //     .then((videoInputDevices) => {
+        //         const sourceSelect = document.getElementById('sourceSelect')
+        //         selectedDeviceId = videoInputDevices[0].deviceId
+        //         if (videoInputDevices.length >= 1) {
+        //             videoInputDevices.forEach((element) => {
+        //                 const sourceOption = document.createElement('option')
+        //                 sourceOption.text = element.label
+        //                 sourceOption.value = element.deviceId
+        //                 sourceSelect.appendChild(sourceOption)
+        //             })
+        //
+        //             sourceSelect.onchange = () => {
+        //                 selectedDeviceId = sourceSelect.value;
+        //             };
+        //
+        //             const sourceSelectPanel = document.getElementById('sourceSelectPanel')
+        //             sourceSelectPanel.style.display = 'block'
+        //         }
+        //
+        //         //start button
+        //         document.getElementById('startButton').addEventListener('click', () => {
+        //             decodeOnce(codeReader, selectedDeviceId);
+        //         })
+        //
+        //         //reset button
+        //         document.getElementById('resetButton').addEventListener('click', () => {
+        //             codeReader.reset()
+        //             document.getElementById('result').textContent = '';
+        //         })
+        //
+        //     })
+        //     .catch((err) => {
+        //         console.error(err)
+        //     })
+    })
+
+    function decodeOnce(codeReader, selectedDeviceId) {
+        codeReader.decodeFromInputVideoDevice(selectedDeviceId, 'video').then((result) => {
+            //print the result
+            // document.getElementById('result').textContent = result.text;
+            getDeviceID(result.text);
+
+        }).catch((err) => {
+            console.error(err)
+            document.getElementById('result').textContent = err
+        })
+    }
+
+</script>
+</body>
+</html>
