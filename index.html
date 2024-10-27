@@ -12,7 +12,7 @@
     <section class="row">
         <h1>FreeSpace ToolKit</h1>
         <div class="d-flex justify-content-center">
-            <video style="display: none" height="200" id="video"  width="300"></video>
+            <video height="200" id="video" style="display: none" width="300"></video>
         </div>
         <div class="col-12 bg-white sticky-top pb-2">
             <div class="row">
@@ -195,11 +195,12 @@
         searchData();
     });
 
-    function fadeOutQr(){
-        $("#video").css('display','none');
+    function fadeOutQr() {
+        $("#video").css('display', 'none');
     }
-    function fadeInQr(){
-        $("#video").css('display','block');
+
+    function fadeInQr() {
+        $("#video").css('display', 'block');
     }
 
     let onOff = 1;
@@ -264,11 +265,8 @@
                         icon: "success",
                         title: "Copied the text: " + inputField.value
                     });
-                    // Swal.fire("Copied the text: " + inputField.value);
-                    // alert("Copied the text: " + inputField.value);
                 })
                 .catch(err => {
-                    console.error("Clipboard API failed:", err);
                     fallbackCopy(inputField);
                 });
         } else {
@@ -305,8 +303,7 @@
 
     // Prompt the user to manually copy if all else fails
     function manualCopyPrompt(text) {
-        Swal.fire("Copy failed. Please manually select and copy this text:\n\n" + text);
-        // alert("Copy failed. Please manually select and copy this text:\n\n" + text);
+        $("#btnCpy").click();
     }
 
     function getDeviceID(decodedText) {
@@ -319,12 +316,7 @@
                 copyToClipboard();
                 searchData();
                 codeReader.reset();
-               fadeOutQr();
-
-                Toast.fire({
-                    icon: "success",
-                    title: "Signed in successfully"
-                });
+                fadeOutQr();
             }
         });
     }
