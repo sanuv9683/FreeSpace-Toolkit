@@ -5,27 +5,28 @@
     <title>FreeSpace Toolkit</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/styles.css?v=1.0" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+    <link href="css/styles.css?v=1.2" rel="stylesheet">
 </head>
 <body>
 <section class="container-fluid">
     <section class="row">
         <h1>FreeSpace ToolKit</h1>
-        <div id="qr-reader"></div>
+        <div class="d-flex justify-content-center">
+            <video style="display: none" height="200" id="video"  width="300"></video>
+        </div>
         <div class="col-12 bg-white sticky-top pb-2">
             <div class="row">
                 <div class="col-12 col-sm-4 col-md-4 col-lg-3  mt-2">
                     <div class="btn-group">
                         <button class="btn btn-primary" id="search">Search</button>
                         <button class="btn btn-danger" id="clear">Clear</button>
-                        <button class="btn btn-warning" id="qrStp">Stop Reader</button>
+                        <button class="btn btn-warning" id="qrStp">Start/Stop</button>
                     </div>
                 </div>
                 <div class="col-9 col-md-5 mt-2">
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" value="1901-101-455" id="inp" placeholder="Device ID">
-                        <button class="btn btn-primary" type="button" id="btnCpy">Copy</button>
+                        <input class="form-control" id="inp" placeholder="Device ID" type="text" value="1901-101-455">
+                        <button class="btn btn-primary" id="btnCpy" type="button">Copy</button>
                     </div>
                 </div>
                 <div class="col-3 col-md-3  mt-2">
@@ -69,6 +70,8 @@
 </footer>
 <script src="js/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/@zxing/library@latest" type="text/javascript"></script>
+
 <script>
 
     $(function () {
@@ -107,7 +110,7 @@
         $("#tb").empty();
     }
 
-    function searchData(){
+    function searchData() {
         clearTable();
         showLoader();
 
@@ -119,7 +122,7 @@
                 hideLoader();
                 $('#deviceData').empty();
 
-                let resEdited=convertToBritishTime(response);
+                let resEdited = convertToBritishTime(response);
 
                 let formatedResponse = resEdited
                     .replace(/<hr\/>/g, '')
@@ -179,12 +182,32 @@
         searchData();
     });
 
-    $("#qrStp").click(function (){
-        qrReader.stop();
+    function fadeOutQr(){
+        $("#video").css('display','none');
+    }
+    function fadeInQr(){
+        $("#video").css('display','block');
+    }
+
+    let onOff = 1;
+    $("#qrStp").click(function () {
+        if (onOff === 1) {
+            codeReader.reset();
+            fadeOutQr();
+            onOff = 0;
+        } else {
+            fadeInQr();
+            decodeOnce(codeReader, 0);
+            onOff = 1;
+        }
+
     });
 
     $("#clear").click(function () {
         clearAll();
+        codeReader.reset();
+        onOff = 1;
+        decodeOnce(codeReader, 0)
     });
 
     function printResponse(param, i) {
@@ -200,19 +223,16 @@
         $("#tb").append(row);
     }
 
-    // Initialize QR Code Reader
-    const qrReader = new Html5Qrcode("qr-reader");
 
     function clearAll() {
         clearTable();
         $("#inp").val("");
         $("#inp").focus();
         $('#deviceData').empty();
-       // if (qrReader!=null) qrReader.stop();
-        startScanner();
+
     }
 
-    $("#btnCpy").click(function (){
+    $("#btnCpy").click(function () {
         copyToClipboard();
     });
 
@@ -268,43 +288,76 @@
         // alert("Copy failed. Please manually select and copy this text:\n\n" + text);
     }
 
-
-
-    function startScanner() {
-        // Request a list of cameras to select the primary (main) rear camera
-        Html5Qrcode.getCameras().then(devices => {
-            // Select the first rear camera (usually the main camera)
-            const mainCamera = devices.find(device => device.label.toLowerCase().includes("back") || device.label.toLowerCase().includes("rear"));
-            const cameraId = mainCamera ? mainCamera.id : { facingMode: "environment" };
-
-            qrReader.start(
-                cameraId,
-                { fps: 10, qrbox: 250 },
-                (decodedText) => {
-
-                    $.ajax({
-                        //https://q.afreespace.com/m3sUkpAz
-                        url:decodedText.replace("http://", "https://"),
-                        success:function (res){
-                            let decodedID= $(res).find('#temp-table').children('tbody').children('tr:nth-child(1)').children('td:nth-child(2)').text();
-                            $('#inp').val(decodedID);
-                            copyToClipboard();
-                            searchData();
-                        }
-                    });
-                    qrReader.stop();
-                },
-                (errorMessage) => {
-                    console.warn(`QR Code scan error: ${errorMessage}`);
-                }
-            );
-        }).catch(err => {
-            console.error("Error accessing cameras:", err);
+    function getDeviceID(decodedText) {
+        $.ajax({
+            //https://q.afreespace.com/m3sUkpAz
+            url: decodedText.replace("http://", "https://"),
+            success: function (res) {
+                let decodedID = $(res).find('#temp-table').children('tbody').children('tr:nth-child(1)').children('td:nth-child(2)').text();
+                $('#inp').val(decodedID);
+                copyToClipboard();
+                searchData();
+                codeReader.reset();
+               fadeOutQr();
+            }
         });
     }
 
-    // Start scanning on page load
-    window.addEventListener('load', startScanner);
+    let codeReader;
+
+    window.addEventListener('load', function () {
+        let selectedDeviceId;
+        codeReader = new ZXing.BrowserQRCodeReader()
+        decodeOnce(codeReader, 0)
+
+        // codeReader.getVideoInputDevices()
+        //     .then((videoInputDevices) => {
+        //         const sourceSelect = document.getElementById('sourceSelect')
+        //         selectedDeviceId = videoInputDevices[0].deviceId
+        //         if (videoInputDevices.length >= 1) {
+        //             videoInputDevices.forEach((element) => {
+        //                 const sourceOption = document.createElement('option')
+        //                 sourceOption.text = element.label
+        //                 sourceOption.value = element.deviceId
+        //                 sourceSelect.appendChild(sourceOption)
+        //             })
+        //
+        //             sourceSelect.onchange = () => {
+        //                 selectedDeviceId = sourceSelect.value;
+        //             };
+        //
+        //             const sourceSelectPanel = document.getElementById('sourceSelectPanel')
+        //             sourceSelectPanel.style.display = 'block'
+        //         }
+        //
+        //         //start button
+        //         document.getElementById('startButton').addEventListener('click', () => {
+        //             decodeOnce(codeReader, selectedDeviceId);
+        //         })
+        //
+        //         //reset button
+        //         document.getElementById('resetButton').addEventListener('click', () => {
+        //             codeReader.reset()
+        //             document.getElementById('result').textContent = '';
+        //         })
+        //
+        //     })
+        //     .catch((err) => {
+        //         console.error(err)
+        //     })
+    })
+
+    function decodeOnce(codeReader, selectedDeviceId) {
+        fadeInQr();
+
+        codeReader.decodeFromInputVideoDevice(selectedDeviceId, 'video').then((result) => {
+            //print the result
+            getDeviceID(result.text);
+
+        }).catch((err) => {
+            console.error(err);
+        })
+    }
 
 </script>
 </body>
