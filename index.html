@@ -214,6 +214,7 @@
     function copyToClipboard() {
         const inputField = document.getElementById("inp");
         inputField.select();
+        inputField.setSelectionRange(0, 99999);
         if (document.hasFocus()) {
             if (navigator.clipboard) {
                 // Use Clipboard API if available
