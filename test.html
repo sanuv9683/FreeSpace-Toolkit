@@ -21,17 +21,10 @@
 
 <!-- Page Content -->
 <div class="container text-center mt-5">
-  <h1 class="mb-4">QR Code Scanner</h1>
-  <p class="lead">Scan a QR code to load its content below.</p>
-
   <!-- QR Code Reader -->
-  <div id="qr-reader"></div>
 
-  <!-- Display Scanned Content -->
-  <div id="content" class="content text-center mt-4">
-    <h3>Scanned Content:</h3>
-    <p id="scanned-text" class="text-primary fw-bold">No content yet</p>
-  </div>
+
+
 
   <!-- Reload Button -->
   <button class="btn btn-secondary mt-3" onclick="resetScanner()">Reset Scanner</button>
@@ -40,7 +33,6 @@
 <script>
   // Initialize QR Code Reader
   const qrReader = new Html5Qrcode("qr-reader");
-
 
   function startScanner() {
     // Request a list of cameras to select the primary (main) rear camera

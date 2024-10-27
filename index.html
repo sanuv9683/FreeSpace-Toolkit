@@ -6,11 +6,13 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/styles.css?v=1.0" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body>
 <section class="container-fluid">
     <section class="row">
         <h1>FreeSpace ToolKit</h1>
+        <div id="qr-reader"></div>
         <div class="col-12 bg-white sticky-top pb-2">
             <div class="row">
                 <div class="col-12 col-sm-4 col-md-4 col-lg-3  mt-2">
@@ -64,21 +66,14 @@
 <script src="js/jquery-3.7.1.min.js"></script>
 <script>
 
-    //hide the loader
     $(function () {
         hideLoader();
     })
 
     function convertToBritishTime(inputString) {
-        // Regular expression to match _time fields in UTC format
         const regex = /_time":\s*"(\d{4}-\d{2}-\d{2})\s(\d{2}):(\d{2}):(\d{2})\sUTC"/g;
-
-        // Replace function to process each match
         const resultString = inputString.replace(regex, (match, date, hours, minutes, seconds) => {
-            // Create a Date object from the extracted components
             const utcDate = new Date(`${date}T${hours}:${minutes}:${seconds}Z`);
-
-            // Convert to British time (BST or GMT)
             const options = {
                 timeZone: 'Europe/London',
                 year: 'numeric',
@@ -87,21 +82,13 @@
                 hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit',
-                hour12: true // 12-hour format
+                hour12: true
             };
-
-            // Format date to British time string
             const britishTime = utcDate.toLocaleString('en-GB', options);
-
-            // Return the updated string with British time
             return `_time": "${britishTime}"`;
         });
-
         return resultString;
     }
-
-
-
 
     function hideLoader() {
         $("#inner-box").css('display', 'none');
@@ -114,8 +101,6 @@
     function clearTable() {
         $("#tb").empty();
     }
-
-
 
     $('#search').click(function () {
         clearTable();
@@ -138,7 +123,6 @@
                     .replace(/,/g, '')
                     .replace(/\\/g, '');
 
-
                 let fr = formatedResponse.split('<br/>');
 
                 for (let i = 0; i < fr.length; i++) {
@@ -155,20 +139,16 @@
                                 while ((match = regex.exec(fr[i])) !== null) {
                                     data[match[1]] = match[2];
                                 }
-
                                 return data;
                             }
 
                             let html = '';
 
-                            // Dynamically generate the list items for each key-value pair
                             for (let key in m) {
                                 html += `<li class="list-group-item"><strong>${key}:</strong> ${m[key]}</li>`;
                             }
 
-                            // Display the data in the UI
                             $('#deviceData').html(html);
-
 
                         } else {
                             let row = `<tr>
@@ -177,11 +157,9 @@
                             </tr>`;
                             $("#tb").append(row);
                         }
-
                     } else {
                         printResponse(fr[i], i);
                     }
-
                 }
             },
             error: function (res) {
@@ -214,6 +192,52 @@
         $("#inp").val("");
         $("#inp").focus();
         $('#deviceData').empty();
+        startScanner();
+    }
+</script>
+
+<script>
+    // Initialize QR Code Reader
+    const qrReader = new Html5Qrcode("qr-reader");
+
+    function startScanner() {
+        // Request a list of cameras to select the primary (main) rear camera
+        Html5Qrcode.getCameras().then(devices => {
+            // Select the first rear camera (usually the main camera)
+            const mainCamera = devices.find(device => device.label.toLowerCase().includes("back") || device.label.toLowerCase().includes("rear"));
+            const cameraId = mainCamera ? mainCamera.id : { facingMode: "environment" };
+
+            qrReader.start(
+                cameraId,
+                { fps: 10, qrbox: 250 },
+                (decodedText) => {
+
+                    $.ajax({
+                        //https://q.afreespace.com/m3sUkpAz
+                        url:decodedText.replace("http://", "https://"),
+                        success:function (res){
+                            let decodedID= $(res).find('#temp-table').children('tbody').children('tr:nth-child(1)').children('td:nth-child(2)').text();
+                            $('#inp').val(decodedID);
+                        }
+                    });
+                    qrReader.stop();
+                },
+                (errorMessage) => {
+                    console.warn(`QR Code scan error: ${errorMessage}`);
+                }
+            );
+        }).catch(err => {
+            console.error("Error accessing cameras:", err);
+        });
+    }
+
+    // Start scanning on page load
+    window.addEventListener('load', startScanner);
+
+    // Reset the scanner
+    function resetScanner() {
+        document.getElementById("scanned-text").textContent = "No content yet";
+        startScanner();
     }
 </script>
 </body>
