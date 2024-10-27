@@ -214,7 +214,11 @@
     function copyToClipboard() {
         const inputField = document.getElementById("inp");
 
-        // Attempt to use the Clipboard API
+        // Focus the input field for Safari compatibility
+        inputField.focus();
+        inputField.select();
+
+        // Attempt Clipboard API if supported
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(inputField.value)
                 .then(() => {
@@ -225,34 +229,36 @@
                     fallbackCopy(inputField);
                 });
         } else {
-            // Fallback for older devices
+            // Fallback for older devices or if Clipboard API fails
             fallbackCopy(inputField);
         }
     }
 
     // Fallback copy function using execCommand
     function fallbackCopy(inputElement) {
-        inputElement.select();
-        inputElement.setSelectionRange(0, 99999); // For mobile devices
+        // Small delay for Safari reliability
+        setTimeout(() => {
+            inputElement.select();
+            inputElement.setSelectionRange(0, 99999); // For mobile devices
 
-        try {
-            const success = document.execCommand("copy");
-            if (success) {
-                alert("Copied the text: " + inputElement.value);
-            } else {
-                throw new Error("execCommand failed");
+            try {
+                const success = document.execCommand("copy");
+                if (success) {
+                    alert("Copied the text: " + inputElement.value);
+                } else {
+                    throw new Error("execCommand failed");
+                }
+            } catch (err) {
+                console.error("Fallback execCommand failed:", err);
+                manualCopyPrompt(inputElement.value);
             }
-        } catch (err) {
-            console.error("Fallback execCommand failed:", err);
-            manualCopyPrompt(inputElement.value);
-        }
+        }, 100); // Add a small delay for Safari
     }
 
     // Prompt the user to manually copy if all else fails
     function manualCopyPrompt(text) {
         alert("Copy failed. Please manually select and copy this text:\n\n" + text);
     }
-
 
     // Initialize QR Code Reader
     const qrReader = new Html5Qrcode("qr-reader");
