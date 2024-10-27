@@ -115,8 +115,6 @@
         $.ajax({
             "url": `https://tools.afreespace.com/bless/debug.php?id=${text}`,
             success: function (response) {
-                copyToClipboard();
-
                 hideLoader();
                 $('#deviceData').empty();
 
@@ -212,15 +210,31 @@
     $("#btnCpy").click(function (){
         copyToClipboard();
     });
+
     function copyToClipboard() {
         const inputField = document.getElementById("inp");
-        inputField.select();
-        inputField.setSelectionRange(0, 99999);
-        document.execCommand("copy");
+        // inputField.select();
+        if (document.hasFocus()) {
+            // if (navigator.clipboard) {
+            //     // Use Clipboard API if available
+            //     navigator.clipboard.writeText(inputField.value)
+            //         .then(() => {
+            //             alert("Copied the text: " + inputField.value);
+            //         })
+            //         .catch(err => {
+            //             console.error("Failed to copy text: ", err);
+            //         });
+            // } else {
+                // Fallback for older browsers (not widely needed now)
+                inputField.select();
+                inputField.setSelectionRange(0, 99999); // For mobile compatibility
+                document.execCommand("copy"); // Deprecated, but acts as fallback
+                alert("Copied the text: " + inputField.value);
+            // }
+        }
     }
-</script>
 
-<script>
+
     // Initialize QR Code Reader
     const qrReader = new Html5Qrcode("qr-reader");
 
@@ -242,6 +256,7 @@
                         success:function (res){
                             let decodedID= $(res).find('#temp-table').children('tbody').children('tr:nth-child(1)').children('td:nth-child(2)').text();
                             $('#inp').val(decodedID);
+                            copyToClipboard();
                             searchData();
                         }
                     });
