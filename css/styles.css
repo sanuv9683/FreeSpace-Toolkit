@@ -34,3 +34,37 @@
     max-width: 400px;
     margin: 20px auto;
 }
+
+/* Custom styles for the navbar */
+.navbar {
+    background-color: #f8f9fa; /* Light whitish background */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for elevation */
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #283E51 !important; /* Darker color for branding */
+}
+
+.nav-link {
+    color: #283E51 !important;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #007BFF !important; /* Blue color on hover */
+}
+
+.btn-cta {
+    background-color: #007BFF; /* Blue button */
+    color: #fff;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.btn-cta:hover {
+    background-color: #0056b3;
+    color: #fff;
+}

@@ -8,34 +8,48 @@
     <link href="css/styles.css?v=1.2" rel="stylesheet">
 </head>
 <body>
+<nav class="navbar navbar-expand-lg navbar-light mb-3">
+    <div class="container">
+        <a class="navbar-brand" href="#">FreeSpace</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+            </ul>
+        </div>
+    </div>
+</nav>
 <section class="container-fluid">
     <section class="row">
-        <h1>FreeSpace ToolKit</h1>
-        <div class="d-flex justify-content-center">
-            <video height="200" id="video" style="display: none" width="300"></video>
+        <div class="col-12">
+            <div class="d-flex justify-content-center">
+                <video height="200" id="video" style="display: none" width="300"></video>
+            </div>
         </div>
         <div class="col-12 bg-white sticky-top pb-2">
-            <div class="row">
-                <div class="col-12 col-sm-4 col-md-4 col-lg-3  mt-2">
+            <div class="row justify-content-center">
+                <div class="col-md-12 col-lg-3 mt-2">
                     <div class="btn-group">
                         <button class="btn btn-primary" id="search">Search</button>
                         <button class="btn btn-danger" id="clear">Clear</button>
                         <button class="btn btn-warning" id="qrStp">Start/Stop</button>
                     </div>
+
                 </div>
-                <div class="col-9 col-md-5 mt-2">
+                <div class="col-8 col-md-12 col-lg-5 mt-2">
                     <div class="input-group mb-3">
                         <input class="form-control" id="inp" placeholder="Device ID" type="text" value="1901-101-455">
                         <button class="btn btn-primary" id="btnCpy" type="button">Copy</button>
                     </div>
                 </div>
-                <div class="col-3 col-md-3  mt-2">
+                <div class="col-4 col-md-4 col-lg-4 d-flex justify-content-start mt-2">
                     <div id="inner-box">
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-12 overflow-scroll mt-4">
+        <div class="col-12  overflow-scroll">
             <table class="table table-bordered">
                 <thead>
                 <tr>
@@ -58,7 +72,6 @@
                 </div>
             </div>
         </div>
-
     </section>
 </section>
 
@@ -71,24 +84,52 @@
 <script src="js/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://unpkg.com/@zxing/library@latest" type="text/javascript"></script>
-
+<script src="js/my_script.js"></script>
 <script>
 
-    const Toast = Swal.mixin({
-        toast: true,
-        position: "bottom-center",
-        showConfirmButton: false,
-        timer: 1500,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-        }
-    });
-
-    $(function () {
+    window.addEventListener('load', function () {
         hideLoader();
+        codeReader = new ZXing.BrowserQRCodeReader()
+        // decodeOnce(codeReader, 0)
+
+
+        // codeReader.getVideoInputDevices()
+        //     .then((videoInputDevices) => {
+        //         const sourceSelect = document.getElementById('sourceSelect')
+        //         selectedDeviceId = videoInputDevices[0].deviceId
+        //         if (videoInputDevices.length >= 1) {
+        //             videoInputDevices.forEach((element) => {
+        //                 const sourceOption = document.createElement('option')
+        //                 sourceOption.text = element.label
+        //                 sourceOption.value = element.deviceId
+        //                 sourceSelect.appendChild(sourceOption)
+        //             })
+        //
+        //             sourceSelect.onchange = () => {
+        //                 selectedDeviceId = sourceSelect.value;
+        //             };
+        //
+        //             const sourceSelectPanel = document.getElementById('sourceSelectPanel')
+        //             sourceSelectPanel.style.display = 'block'
+        //         }
+        //
+        //         //start button
+        //         document.getElementById('startButton').addEventListener('click', () => {
+        //             decodeOnce(codeReader, selectedDeviceId);
+        //         })
+        //
+        //         //reset button
+        //         document.getElementById('resetButton').addEventListener('click', () => {
+        //             codeReader.reset()
+        //             document.getElementById('result').textContent = '';
+        //         })
+        //
+        //     })
+        //     .catch((err) => {
+        //         console.error(err)
+        //     })
     })
+
 
     function convertToBritishTime(inputString) {
         const regex = /_time":\s*"(\d{4}-\d{2}-\d{2})\s(\d{2}):(\d{2}):(\d{2})\sUTC"/g;
@@ -262,7 +303,7 @@
                 .then(() => {
                     Toast.fire({
                         icon: "success",
-                        title: "Copied the text: " + inputField.value
+                        title: "Copied : " + inputField.value
                     });
                 })
                 .catch(err => {
@@ -288,47 +329,7 @@
 
     let codeReader;
 
-    window.addEventListener('load', function () {
-        let selectedDeviceId;
-        codeReader = new ZXing.BrowserQRCodeReader()
-        decodeOnce(codeReader, 0)
 
-        // codeReader.getVideoInputDevices()
-        //     .then((videoInputDevices) => {
-        //         const sourceSelect = document.getElementById('sourceSelect')
-        //         selectedDeviceId = videoInputDevices[0].deviceId
-        //         if (videoInputDevices.length >= 1) {
-        //             videoInputDevices.forEach((element) => {
-        //                 const sourceOption = document.createElement('option')
-        //                 sourceOption.text = element.label
-        //                 sourceOption.value = element.deviceId
-        //                 sourceSelect.appendChild(sourceOption)
-        //             })
-        //
-        //             sourceSelect.onchange = () => {
-        //                 selectedDeviceId = sourceSelect.value;
-        //             };
-        //
-        //             const sourceSelectPanel = document.getElementById('sourceSelectPanel')
-        //             sourceSelectPanel.style.display = 'block'
-        //         }
-        //
-        //         //start button
-        //         document.getElementById('startButton').addEventListener('click', () => {
-        //             decodeOnce(codeReader, selectedDeviceId);
-        //         })
-        //
-        //         //reset button
-        //         document.getElementById('resetButton').addEventListener('click', () => {
-        //             codeReader.reset()
-        //             document.getElementById('result').textContent = '';
-        //         })
-        //
-        //     })
-        //     .catch((err) => {
-        //         console.error(err)
-        //     })
-    })
 
     function decodeOnce(codeReader, selectedDeviceId) {
         fadeInQr();
