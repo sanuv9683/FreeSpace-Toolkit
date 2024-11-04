@@ -35,36 +35,68 @@
     margin: 20px auto;
 }
 
-/* Custom styles for the navbar */
-.navbar {
-    background-color: #f8f9fa; /* Light whitish background */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Soft shadow for elevation */
-}
+/*!* Custom styles for the navbar *!*/
+/*.navbar {*/
+/*    background-color: #f8f9fa; !* Light whitish background *!*/
+/*    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); !* Soft shadow for elevation *!*/
+/*}*/
 
-.navbar-brand {
+/*.navbar-brand {*/
+/*    font-weight: bold;*/
+/*    font-size: 1.5rem;*/
+/*    color: #283E51 !important; !* Darker color for branding *!*/
+/*}*/
+
+/*.nav-link {*/
+/*    color: #283E51 !important;*/
+/*    font-weight: 500;*/
+/*    transition: color 0.3s ease;*/
+/*}*/
+
+/*.nav-link:hover {*/
+/*    color: #007BFF !important; !* Blue color on hover *!*/
+/*}*/
+
+
+     /* Navbar styling */
+ .navbar-custom {
+     background-color: #ffffff;
+     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
+     padding: 1rem 2rem;
+ }
+
+/* Navbar brand */
+.navbar-custom .navbar-brand {
     font-weight: bold;
     font-size: 1.5rem;
-    color: #283E51 !important; /* Darker color for branding */
+    color: #333333; /* Dark text for contrast */
 }
 
-.nav-link {
-    color: #283E51 !important;
-    font-weight: 500;
+/* Navbar links */
+.navbar-custom .nav-link {
+    color: #666666;
+    margin-right: 1rem;
     transition: color 0.3s ease;
 }
 
-.nav-link:hover {
-    color: #007BFF !important; /* Blue color on hover */
+/* Hover effect for links */
+.navbar-custom .nav-link:hover {
+    color: #333333;
 }
 
-.btn-cta {
-    background-color: #007BFF; /* Blue button */
-    color: #fff;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
+/* Active link */
+.navbar-custom .nav-link.active {
+    color: #000000;
 }
 
-.btn-cta:hover {
-    background-color: #0056b3;
-    color: #fff;
+/* Custom styling for navbar-toggler-icon */
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba%2866, 66, 66, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-custom {
+        padding: 1rem;
+    }
 }
