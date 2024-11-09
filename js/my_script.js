@@ -171,7 +171,7 @@ function printResponse(param, i) {
                    <td>${i}</td>
                    <td><strong id="str">${c}</strong> : ${d}</td>
                    </tr>`;
-    $("#tb").append(row);
+    $("#tb2").append(row);
 }
 
 function clearAll() {
