@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Data Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Device Data Dashboard</h2>
+
+    <!-- Basic Device Information Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Device Basic Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-4"><strong>MAC Address:</strong> 0c2a690f7811</div>
+                <div class="col-md-4"><strong>Install ID:</strong> 2019025266</div>
+                <div class="col-md-4"><strong>Batch ID:</strong> 1904201737</div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-4"><strong>Firmware:</strong> 885</div>
+                <div class="col-md-4"><strong>Agent ID:</strong> LnywhEDZWPR5</div>
+                <div class="col-md-4"><strong>Platform:</strong> ONE</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Agent and Network Information Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h4 class="mb-0">Agent and Network Information</h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6"><strong>Agent URL:</strong> <a href="https://agent.electricimp.com/LnywhEDZWPR5" target="_blank">agent.electricimp.com</a></div>
+                <div class="col-md-6"><strong>Device Online:</strong> <span class="badge bg-danger">Offline</span></div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6"><strong>Last Connect:</strong> 2024-11-09T03:13:35.589Z</div>
+                <div class="col-md-6"><strong>IP Address:</strong> 44.242.26.99</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inside Agent Request Section -->
+    <div class="accordion" id="dataAccordion">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    Inside Agent Request
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#dataAccordion">
+                <div class="accordion-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Day Duration (minutes):</strong> 1010</div>
+                        <div class="col-md-4"><strong>Minimum Trigger for Presence:</strong> 4</div>
+                        <div class="col-md-4"><strong>Sleep on Presence:</strong> 3</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4"><strong>Last Wifi Connection:</strong> OCSConnect</div>
+                        <div class="col-md-4"><strong>Reference Day:</strong> 20036</div>
+                        <div class="col-md-4"><strong>Config Last Refreshed:</strong> 1731122015</div>
+                    </div>
+                    <!-- Additional details for Inside Agent Request can go here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Visualization for Surroundings -->
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    Surroundings Data Visualization
+                </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#dataAccordion">
+                <div class="accordion-body">
+                    <canvas id="surroundingsChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart Data -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('surroundingsChart').getContext('2d');
+
+            // Dummy data for surroundings (replace with actual data parsing if needed)
+            const surroundingsLabels = [
+                "04:08:12 UTC", "07:00:01 UTC", "11:17:38 UTC", "11:28:26 UTC", "11:40:31 UTC",
+                "11:41:27 UTC", "11:49:47 UTC", "12:06:19 UTC", "12:07:28 UTC", "12:09:40 UTC"
+            ];
+            const type4Values = [0, 1, 0, 1, 0, 2, 3, 4, 0, 4]; // Sample values
+            const type74Values = [3, 3, 3, 5, 3, 5, 5, 5, 5, 120]; // Sample values
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: surroundingsLabels,
+                    datasets: [
+                        {
+                            label: 'Type 4 Values',
+                            data: type4Values,
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            fill: false
+                        },
+                        {
+                            label: 'Type 74 Values',
+                            data: type74Values,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Surroundings Data Over Time'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</div>
+
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
