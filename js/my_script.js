@@ -238,21 +238,34 @@ function camSetting() {
         camOnOff = true;
         localStorage.setItem('cam4', 'true');
         decodeOnce(codeReader, 0);
+        updateButton(true);
     } else {
         let rp = localStorage.getItem('cam4');
         if (rp === 'true') {
             decodeOnce(codeReader, 0);
             camOnOff = true;
+            updateButton(true);
         } else if (rp === 'false') {
             camOnOff = false;
+            updateButton(false);
         }
     }
 }
 
 function setCam(rs) {
-    localStorage.setItem('cam4', rs)
+    localStorage.setItem('cam4', rs);
+    if (rs==='true')updateButton(true);
+    if (rs==='false')updateButton(false);
 }
 
+function updateButton(rs) {
+    const button = document.getElementById("qrStp");
+    if (!rs) {
+        button.textContent = "Cam : On";
+    } else {
+        button.textContent = "Cam : Off";
+    }
+}
 
 $("#qrStp").click(function () {
     if (camOnOff === true) {
