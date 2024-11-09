@@ -9,13 +9,13 @@ const Toast = Swal.mixin({
         toast.onmouseleave = Swal.resumeTimer;
     }
 });
+let camOnOff = true;
+let codeReader;
 
 window.addEventListener('load', function () {
     hideLoader();
-    codeReader = new ZXing.BrowserQRCodeReader()
-    decodeOnce(codeReader, 0)
-
-
+    codeReader = new ZXing.BrowserQRCodeReader();
+    camSetting();
     // codeReader.getVideoInputDevices()
     //     .then((videoInputDevices) => {
     //         const sourceSelect = document.getElementById('sourceSelect')
@@ -52,7 +52,6 @@ window.addEventListener('load', function () {
     //         console.error(err)
     //     })
 })
-
 
 function convertToBritishTime(inputString) {
     const regex = /_time":\s*"(\d{4}-\d{2}-\d{2})\s(\d{2}):(\d{2}):(\d{2})\sUTC"/g;
@@ -154,10 +153,6 @@ function searchData() {
     });
 }
 
-$('#search').click(function () {
-    searchData();
-});
-
 function fadeOutQr() {
     $("#video").css('display', 'none');
 }
@@ -165,27 +160,6 @@ function fadeOutQr() {
 function fadeInQr() {
     $("#video").css('display', 'block');
 }
-
-let onOff = 1;
-$("#qrStp").click(function () {
-    if (onOff === 1) {
-        codeReader.reset();
-        fadeOutQr();
-        onOff = 0;
-    } else {
-        fadeInQr();
-        decodeOnce(codeReader, 0);
-        onOff = 1;
-    }
-
-});
-
-$("#clear").click(function () {
-    clearAll();
-    codeReader.reset();
-    onOff = 1;
-    decodeOnce(codeReader, 0)
-});
 
 function printResponse(param, i) {
     let a = param.split(':');
@@ -207,10 +181,6 @@ function clearAll() {
     $('#deviceData').empty();
 
 }
-
-$("#btnCpy").click(function () {
-    copyToClipboard();
-});
 
 function copyToClipboard() {
     const inputField = document.getElementById("inp");
@@ -250,10 +220,6 @@ function getDeviceID(decodedText) {
     });
 }
 
-let codeReader;
-
-
-
 function decodeOnce(codeReader, selectedDeviceId) {
     fadeInQr();
 
@@ -265,3 +231,55 @@ function decodeOnce(codeReader, selectedDeviceId) {
         console.error(err);
     })
 }
+
+function camSetting() {
+    let rp = localStorage.getItem('cam4');
+    if (rp == null) {
+        camOnOff = true;
+        localStorage.setItem('cam4', 'true');
+        decodeOnce(codeReader, 0);
+    } else {
+        let rp = localStorage.getItem('cam4');
+        if (rp === 'true') {
+            decodeOnce(codeReader, 0);
+            camOnOff = true;
+        } else if (rp === 'false') {
+            camOnOff = false;
+        }
+    }
+}
+
+function setCam(rs) {
+    localStorage.setItem('cam4', rs)
+}
+
+
+$("#qrStp").click(function () {
+    if (camOnOff === true) {
+        codeReader.reset();
+        fadeOutQr();
+        camOnOff = false;
+        setCam('false');
+    } else {
+        fadeInQr();
+        decodeOnce(codeReader, 0);
+        setCam('true');
+        camOnOff = true;
+    }
+
+});
+
+$("#clear").click(function () {
+    clearAll();
+    codeReader.reset();
+    onOff = 1;
+    camSetting();
+});
+
+$("#btnCpy").click(function () {
+    copyToClipboard();
+});
+
+$('#search').click(function () {
+    searchData();
+});
