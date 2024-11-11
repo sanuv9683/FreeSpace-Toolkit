@@ -104,6 +104,7 @@ function showLoader() {
 
 function clearTable() {
     $("#tb").empty();
+    $('#f-deviceData').empty();
 }
 
 function searchData() {
@@ -156,24 +157,40 @@ function searchData() {
                     $('#f-deviceData').append(htmlM);
                 }else{
                     if (i === 21) {
-                        // Function to extract all key-value pairs using regex
-                        let m = extractAllData();
+                        console.log(res[i]);
+                        let mRes=resEdited
+                            .replace(/<hr\/>/g, '<br/>')
+                            .replace(/<hr>/g, '<br/>')
+                            .replace(/"/g, '')
+                            .replace(/\n/g, '')
+                            .replace(/_/g, ' ')
+                            .replace(/}/g, ' ')
+                            .replace(/\\/g, '');
 
-                        function extractAllData() {
-                            const regex = /([a-zA-Z0-9_]+):\s*([^{}\s]+)/g;
-                            let match;
-                            let data = {};
+                        let mmRes = mRes.split('<br/>');
 
-                            while ((match = regex.exec(res[i])) !== null) {
-                                data[match[1]] = match[2];
-                            }
-                            return data;
-                        }
+                        const extractData = (str) => {
+                            // Modify regex to handle complex values like arrays or multi-line strings
+                            const matchValues = str.match(/(\w[\w\s]+):\s*([^\n]*?(?:\[[^\]]*\]|\{[^}]*\}|[^,]*)),?/g);
+
+                            if (!matchValues) return [];
+
+                            const resultArray = matchValues.map(item => {
+                                // Split each match on the first colon to get key-value pairs
+                                const [key, value] = item.split(/:\s(.+)/);
+                                return [key.trim(), value.trim().replace(/,$/, '')]; // Trim trailing commas if present;
+                            });
+
+                            return resultArray;
+                        };
+
+                        // Call the function and store the result
+                        const m = extractData(mmRes[i]);
 
                         let html = '';
 
                         for (let key in m) {
-                            html += `<li class="list-group-item"><strong>${key}:</strong> ${m[key]}</li>`;
+                            html += `<li class="list-group-item"><strong style="color: red">${key}: ${m[key][0]}</strong> ${m[key][1]}</li>`;
                         }
 
                         $('#deviceData').html(html);
@@ -210,6 +227,7 @@ function clearAll() {
     $("#inp").val("");
     $("#inp").focus();
     $('#deviceData').empty();
+    $('#f-deviceData').empty();
 
 }
 
