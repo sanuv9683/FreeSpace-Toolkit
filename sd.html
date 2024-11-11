@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Case</title>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <style>
+
+  </style>
+</head>
+<body>
+<h1>Testing </h1>
+<table class="table table-bordered">
+  <thead>
+  <tr>
+    <td>No</td>
+    <td>Name</td>
+    <td>Value</td>
+  </tr>
+  </thead>
+  <tbody id="tb">
+
+  </tbody>
+</table>
+
+<script src="js/jquery-3.7.1.min.js"></script>
+<script>
+  let a=`
+M: 0c2a691e9bae I: 2019084114 B: 2203106900 F: 1491 A: 89 SL: 1491 PT: ONE<hr/>
+{"name":null,<br/>
+agent_id":"WHZJJUEdxFXX",<br/>
+agent_url":"https:\\/\\/agent.electricimp.com\\/WHZJJUEdxFXX",<br/>
+device_online":false,<br/>
+device_state_changed_at":"2024-11-10T06:34:32.049Z",<br/>
+agent_running":true,<br/>
+agent_state_changed_at":"2023-06-26T19:02:10.850Z",<br/>
+last_enrolled_at":"2022-03-22T14:45:42.982Z",<br/>
+imp_type":"imp003",<br/>
+ip_address":"44.216.145.108",<br/>
+iccid":null,<br/>
+tags":null,<br/>
+mac_address":"0c:2a:69:1e:9b:ae",<br/>
+free_memory":0,<br/>
+rssi":0,<br/>
+swversion":"5256271 - release-42.9 - Tue Sep  6 15:47:50 2022 - production",<br/>
+plan_id":"ff64e0588d2d8e0e",<br/>
+blessed_at":"2022-03-22T14:45:41.696Z",<br/>
+last_connect":"2024-11-10T06:34:32.049Z",<br/>
+device_id":"30000c2a691e9bae"}<hr/>
+inside agent request{ "day_duration_minutes": 720, "min_trigger_for_presence": 3, "ack_reference_day": 20036, "macaddress": "0c2a691e9bae", "sleep_on_presence": 3, "reporting_type": 0, "holidays": 0, "z_device_data": "BwBkKkoCAQsAwO1FZCpKAwEAAwCTGFxAIABYB0YoEV7OTmQqSgIBSgDAQEVxNkoCAUkAvyhHMd9KAwEAAwBeumFAIwDggkQotGDOTjHfSgIBSQCWIEfIf0sDAQADAF66YUAfACCDRCi0YM5O", "config_last_refreshed": 1731219907, "lastWifi": [ "Freespace_Connect", "78455844a4a1", -61, 11, "192.168.123.93", "192.168.123.254", 0 ], "reference_day": 20037, "day_start_minute_utc": 420, "lastUpdated": 1731219912, "daylight_correction_minutes": 0, "wifi": [ "Freespace_Connect", "78455841f768", -47, 6, "192.168.123.92", "192.168.123.254", 0 ], "sense_before_declaring": 3, "build_number": 26, "sense_time": 300, "ack_build_deployed": 67, "sleep_till": 0, "install_id": 2019084114, "daylight_correction_day": 60, "ucr": [ [ 0, 5, 7054, { "interface": [ { "rssi": -51, "type": "wifi", "channel": 6, "macaddress": "0c2a691e9bae", "powered": true, "connectedtoimpserver": true, "powersave": false, "connectedssid": "Freespace_Connect", "bssid": "78455841f768", "country": "00005355", "name": "wl0", "bands": "2.4G", "encryption": "WPA2-PSK (AES)", "ssid": "Freespace_Connect" } ], "ipv4": { "gateway": "192.168.123.254", "netmask": "255.255.255.0", "address": "192.168.123.94", "dnsserver": [ "192.168.123.254" ], "broadcast": "192.168.123.255", "dhcpserver": "192.168.123.254", "server": { "tcptimeout": 20, "tcpsendwindow": 4380, "errorpolicy": 1, "tcpwaitfor": 0, "tcpsendfree": 3112, "port": 31314 } }, "active": 0 } ] ], "sleep_time": 120, "deploymentSHA": 11, "config_fetch_period": 3600, "battery": 3.527 }<br/>
+<br/>
+{ "_surroundings": [ { "_type": 11, "_value": 7608 } ], "_timestamp": 1731132516, "_time": "2024-11-09 06:08:36 UTC" }<br/>
+<br/>
+{ "_surroundings": [ { "_type": 0, "_value": 3.4389999 }, { "_type": 32, "_value": 8662 }, { "_type": 40, "_value": 1.7311356e+09 } ], "_timestamp": 1731132516, "_states": [ 0 ], "_time": "2024-11-09 06:08:36 UTC" }<br/>
+{ "_surroundings": [ { "_type": 74, "_value": 3084 } ], "_timestamp": 1731132516, "_time": "2024-11-09 06:08:36 UTC" }<br/>
+{ "_surroundings": [ { "_type": 73, "_value": 43199 } ], "_timestamp": 1731135601, "_time": "2024-11-09 07:00:01 UTC" }<br/>
+<br/>
+{ "_surroundings": [ { "_type": 0, "_value": 3.527 }, { "_type": 35, "_value": 1047 }, { "_type": 40, "_value": 1.731222e+09 } ], "_timestamp": 1731178801, "_states": [ 0 ], "_time": "2024-11-09 19:00:01 UTC" }<br/>
+{ "_surroundings": [ { "_type": 73, "_value": 41110 } ], "_timestamp": 1731178801, "_time": "2024-11-09 19:00:01 UTC" }<br/>
+<br/>
+<br/>
+{ "_surroundings": [ { "_type": 0, "_value": 3.527 }, { "_type": 31, "_value": 1049 }, { "_type": 40, "_value": 1.731222e+09 } ], "_timestamp": 1731219912, "_states": [ 0 ], "_time": "2024-11-10 06:25:12 UTC" }<br/>
+`;
+
+  let formatedResponse = a
+          .replace(/<hr\/>/g, '<br/>')
+          .replace(/<hr>/g, '<br/>')
+          .replace(/"/g, '')
+          .replace(/,/g, '')
+          .replace(/\n/g, '')
+          .replace(/}/g, '')
+          .replace(/{/g, '')
+          .replace(/_/g, ' ')
+          .replace(/\\/g, '');
+
+  let res=formatedResponse.split('<br/>');
+  console.log(res);
+  let firstA=res[0].split(':');
+  console.log(firstA);
+
+  let array=[5,7,8,18,19];
+
+  // let sf=formatedResponse.replace(/,/g, '');
+
+  for (let i = 0; i < 21; i++) {
+    let ls=res[i].split(/:(.+)/);
+
+    if (i===0){
+      ls[0]="Device Data";
+      ls[1]=ls[1].substring(16,ls[1].length).split(" ");
+    }
+    if (i===3){
+      ls[1]= `<a target="_blank" href="${ls[1]}">Visit Agent</a>`
+    }
+
+      if (array.includes(i)){
+       ls[1]= convertToBritishTime(ls[1]);
+      }
+    $('#tb').append(`<tr><td>${i}</td><td>${ls[0].toUpperCase()}</td><td>${ls[1]}</td></tr>`);
+  }
+
+  function convertToBritishTime(dateString) {
+    const date = new Date(dateString);
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    // Convert to 12-hour format
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // Convert hour 0 to 12 for 12-hour format
+    hours = String(hours).padStart(2, '0'); // Ensures two-digit hour format
+
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds} ${ampm}`;
+  }
+
+
+</script>
+</body>
+</html>

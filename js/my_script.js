@@ -11,6 +11,8 @@ const Toast = Swal.mixin({
 });
 let camOnOff = true;
 let codeReader;
+let classList = ['fa-database', 'fa-user', 'fa-id-badge', 'fa-link', 'fa-wifi', 'fa-clock', 'fa-play', 'fa-sync-alt', 'fa-calendar-alt', 'fa-microchip', 'fa-network-wired', 'fa-sim-card', 'fa-tags', 'fa-barcode', 'fa-memory', 'fa-signal', 'fa-info-circle', 'fa-file-alt', 'fa-calendar-check', 'fa-link', 'fa-fingerprint'];
+let array = [5, 7, 8, 18, 19];
 
 window.addEventListener('load', function () {
     hideLoader();
@@ -73,6 +75,25 @@ function convertToBritishTime(inputString) {
     return resultString;
 }
 
+function convertToBritishTime2(dateString) {
+    const date = new Date(dateString);
+
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    // Convert to 12-hour format
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12; // Convert hour 0 to 12 for 12-hour format
+    hours = String(hours).padStart(2, '0'); // Ensures two-digit hour format
+
+    return `${day}/${month}/${year} ${hours}:${minutes}:${seconds} ${ampm}`;
+}
+
 function hideLoader() {
     $("#inner-box").css('display', 'none');
 }
@@ -95,22 +116,46 @@ function searchData() {
         "url": `https://tools.afreespace.com/bless/debug.php?id=${text}`,
         success: function (response) {
             hideLoader();
-            $('#deviceData').empty();
+            $('#f-deviceData').empty();
 
             let resEdited = convertToBritishTime(response);
 
             let formatedResponse = resEdited
-                .replace(/<hr\/>/g, '')
-                .replace(/<hr>/g, '')
+                .replace(/<hr\/>/g, '<br/>')
+                .replace(/<hr>/g, '<br/>')
                 .replace(/"/g, '')
                 .replace(/,/g, '')
+                .replace(/\n/g, '')
+                .replace(/}/g, '')
+                .replace(/{/g, '')
+                .replace(/_/g, ' ')
                 .replace(/\\/g, '');
 
-            let fr = formatedResponse.split('<br/>');
+            let res = formatedResponse.split('<br/>');
 
-            for (let i = 0; i < fr.length; i++) {
-                if (i > 18) {
-                    if (i === 19) {
+            for (let i = 0; i < res.length; i++) {
+                if (i < 21) {
+                    let ls = res[i].split(/:(.+)/);
+
+                    if (i === 0) {
+                        ls[0] = "Device Type";
+                        ls[1] = ls[1].substring(66, ls[1].length);
+                    }
+                    if (i === 3) {
+                        ls[1] = `<a target="_blank" href="${ls[1]}">Visit Agent</a>`
+                    }
+
+                    if (array.includes(i)) {
+                        ls[1] = convertToBritishTime2(ls[1]);
+                    }
+
+                    let htmlM = `<div class="info-section">
+                    <div class="info-section-header"><i class="fas ${classList[i]}"></i>${ls[0].toUpperCase()}</div>
+                    <div class="info-section-value">${ls[1]}</div>
+                  </div>`
+                    $('#f-deviceData').append(htmlM);
+                }else{
+                    if (i === 21) {
                         // Function to extract all key-value pairs using regex
                         let m = extractAllData();
 
@@ -119,7 +164,7 @@ function searchData() {
                             let match;
                             let data = {};
 
-                            while ((match = regex.exec(fr[i])) !== null) {
+                            while ((match = regex.exec(res[i])) !== null) {
                                 data[match[1]] = match[2];
                             }
                             return data;
@@ -133,15 +178,14 @@ function searchData() {
 
                         $('#deviceData').html(html);
 
-                    } else {
+                    }else{
                         let row = `<tr>
                                 <td>${i}</td>
-                                <td>${fr[i]}</td>
+                                <td>${res[i]}</td>
                             </tr>`;
                         $("#tb").append(row);
                     }
-                } else {
-                    printResponse(fr[i], i);
+
                 }
             }
         },
@@ -159,19 +203,6 @@ function fadeOutQr() {
 
 function fadeInQr() {
     $("#video").css('display', 'block');
-}
-
-function printResponse(param, i) {
-    let a = param.split(':');
-    let c = a[0].toUpperCase();
-    let d = a[1];
-    if (i === 2) d = `<a target="_blank" href="${a[1] + ":" + a[2]}">${a[1] + ":" + a[2]}</a>`;
-
-    let row = `<tr>
-                   <td>${i}</td>
-                   <td><strong id="str">${c}</strong> : ${d}</td>
-                   </tr>`;
-    $("#tb2").append(row);
 }
 
 function clearAll() {
@@ -254,8 +285,8 @@ function camSetting() {
 
 function setCam(rs) {
     localStorage.setItem('cam4', rs);
-    if (rs==='true')updateButton(true);
-    if (rs==='false')updateButton(false);
+    if (rs === 'true') updateButton(true);
+    if (rs === 'false') updateButton(false);
 }
 
 function updateButton(rs) {
@@ -263,6 +294,7 @@ function updateButton(rs) {
     if (!rs) {
         button.textContent = "Cam : On";
     } else {
+
         button.textContent = "Cam : Off";
     }
 }
