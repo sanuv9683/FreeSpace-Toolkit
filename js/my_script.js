@@ -190,7 +190,11 @@ function searchData() {
                         let html = '';
 
                         for (let key in m) {
-                            html += `<li class="list-group-item"><strong style="color: red">${key}: ${m[key][0]}</strong> ${m[key][1]}</li>`;
+                            html += `<li class="device-info-item">
+                                        <span class="badge-number">${key}</span>
+                                        <span class="item-title">${m[key][0]}</span>
+                                        <span class="item-value">${m[key][1]}</span>
+                                     </li>`;
                         }
 
                         $('#deviceData').html(html);

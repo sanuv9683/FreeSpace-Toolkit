@@ -188,3 +188,102 @@
 .accordion-item{
     margin-bottom: 10px;
 }
+
+
+/*last*/
+
+/* Card styling */
+.device-info-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    /*max-width: 600px;*/
+    margin: auto;
+    overflow: hidden;
+}
+
+/* Header styling */
+.card-header h5 {
+    font-size: 1.5rem;
+    color: #007bff;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Ordered list styling */
+.device-info-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.device-info-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 10px;
+    border-bottom: 1px solid #e0e6ed;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.device-info-item:last-child {
+    border-bottom: none;
+}
+
+/* Hover effect */
+.device-info-item:hover {
+    background-color: #f1f9ff;
+}
+
+/* Number badge styling */
+.badge-number {
+    background-color: #007bff;
+    color: #fff;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: bold;
+    margin-right: 15px;
+}
+
+/* Title and value styling */
+.item-title {
+    font-weight: 500;
+    color: #555;
+    flex-grow: 1;
+    padding-left: 10px;
+}
+
+.item-value {
+    font-weight: 400;
+    color: #007bff;
+    text-align: right;
+    min-width: 100px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .device-info-card {
+        padding: 15px;
+    }
+
+    .card-header h5 {
+        font-size: 1.25rem;
+    }
+
+    .badge-number {
+        width: 24px;
+        height: 24px;
+        font-size: 0.8rem;
+    }
+
+    .item-value {
+        min-width: 80px;
+    }
+}
