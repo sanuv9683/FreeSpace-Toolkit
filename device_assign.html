@@ -10,30 +10,6 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-custom">
-    <a class="navbar-brand" href="#">Fressspace</a>
-    <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
-            data-target="#navbarNav" data-toggle="collapse" type="button">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link active" href="index.html">Home</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="index.html">Mobile Version</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="desktop_scan.html">Desktop Version</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="device_assign.html">Assign IDs</a>
-            </li>
-        </ul>
-    </div>
-</nav>
-
 <div class="container my-4">
 
     <!-- Add Device Form -->
@@ -100,6 +76,18 @@
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
+    // Ask for and save the user's name on first visit
+    function initializeUser() {
+        let userName = localStorage.getItem("userName");
+        if (!userName) {
+            userName = prompt("Welcome! Please enter your name:");
+            if (userName) {
+                localStorage.setItem("userName", userName);
+                alert(`Hello, ${userName}! Your name has been saved.`);
+            }
+        }
+    }
+
     // Add Device
     function addDevice() {
         const markerID = document.getElementById("markerID").value;
@@ -112,9 +100,12 @@
 
         const devicesRef = ref(database, 'devices');
         const newDeviceRef = push(devicesRef);
+        initializeUser();
+        const m_userName = localStorage.getItem("userName");
         set(newDeviceRef, {
             markerID: markerID,
-            deviceID: deviceID
+            deviceID: deviceID,
+            userName: m_userName
         })
             .then(() => {
                 console.log("Device added successfully!");
@@ -146,6 +137,7 @@
             <td>
               <button class="btn btn-sm btn-warning" onclick="updateDevice('${key}', '${device.markerID}', '${device.deviceID}')">Edit</button>
               <button class="btn btn-sm btn-danger" onclick="deleteDevice('${key}',${device.markerID})">Delete</button>
+              <span class="badge text-bg-dark" style="font-size: 5px">${device.userName}</span>
             </td>
           `;
                     tableBody.appendChild(row);
@@ -249,7 +241,7 @@
     window.deleteDevice = deleteDevice;
     window.deleteAllRecords = deleteAllRecords;
     window.exportToExcel = exportToExcel;
-
+    initializeUser();
 </script>
 
 </body>
