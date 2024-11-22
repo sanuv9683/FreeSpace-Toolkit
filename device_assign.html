@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeSpace Toolkit</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="css/styles.css?v=1.5" rel="stylesheet">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <a class="navbar-brand" href="#">Fressspace</a>
+    <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+            data-target="#navbarNav" data-toggle="collapse" type="button">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link active" href="index.html">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="index.html">Mobile Version</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="desktop_scan.html">Desktop Version</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="device_assign.html">Assign IDs</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+
+<div class="container my-4">
+    <h2 class="text-center">Device Tracker</h2>
+
+    <!-- Add Device Form -->
+    <div class="mb-4">
+        <h4>Add New Device</h4>
+        <input type="text" id="markerID" placeholder="Enter Marker ID" class="form-control mb-2">
+        <input type="text" id="deviceID" placeholder="Enter Device ID" class="form-control mb-2">
+        <button class="btn btn-primary" onclick="addDevice()">Add Device</button>
+    </div>
+
+    <!-- Device List Table -->
+    <h4>Device List</h4>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Marker ID</th>
+                <th>Device ID</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="deviceTableBody">
+            <!-- Dynamic rows will be added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Export and Delete All Records -->
+    <div class="mt-4 d-flex justify-content-between">
+        <button class="btn btn-success" onclick="exportToExcel()">Export to Excel</button>
+        <button class="btn btn-danger" onclick="deleteAllRecords()">Delete All Records</button>
+    </div>
+
+    <!-- Notification Sound -->
+    <audio id="notificationSound" src="audio/noti.mp3" preload="auto"></audio>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCZh-clauS34WlvfBQf8pZqyH2RbnsxgO8",
+        authDomain: "freespace-efa32.firebaseapp.com",
+        databaseURL: "https://freespace-efa32-default-rtdb.firebaseio.com",
+        projectId: "freespace-efa32",
+        storageBucket: "freespace-efa32.appspot.com",
+        messagingSenderId: "933704401359",
+        appId: "1:933704401359:web:7390a1d897f3d554ed12ba",
+        measurementId: "G-C671C1TRKM"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Add Device
+    function addDevice() {
+        const markerID = document.getElementById("markerID").value;
+        const deviceID = document.getElementById("deviceID").value;
+
+        if (!markerID || !deviceID) {
+            alert("Please enter both Marker ID and Device ID");
+            return;
+        }
+
+        const devicesRef = ref(database, 'devices');
+        const newDeviceRef = push(devicesRef);
+        set(newDeviceRef, {
+            markerID: markerID,
+            deviceID: deviceID
+        })
+            .then(() => {
+                console.log("Device added successfully!");
+                document.getElementById("markerID").value = "";
+                document.getElementById("deviceID").value = "";
+            })
+            .catch((error) => {
+                console.error("Error adding device:", error);
+            });
+    }
+
+    // Fetch Devices
+    function fetchDevices() {
+        const devicesRef = ref(database, 'devices');
+        onValue(devicesRef, (snapshot) => {
+            const data = snapshot.val();
+            const tableBody = document.getElementById("deviceTableBody");
+            tableBody.innerHTML = ""; // Clear the table body
+
+            if (data) {
+                let count = 1; // Row counter
+                Object.keys(data).forEach((key) => {
+                    const device = data[key];
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+            <td>${count++}</td>
+            <td>${device.markerID}</td>
+            <td>${device.deviceID}</td>
+            <td>
+              <button class="btn btn-sm btn-warning" onclick="updateDevice('${key}', '${device.markerID}', '${device.deviceID}')">Edit</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteDevice('${key}')">Delete</button>
+            </td>
+          `;
+                    tableBody.appendChild(row);
+                });
+                playNotificationSound(); // Play sound when table updates
+            } else {
+                const row = document.createElement("tr");
+                row.innerHTML = '<td colspan="4" class="text-center">No devices found.</td>';
+                tableBody.appendChild(row);
+            }
+        });
+    }
+
+    // Play Notification Sound
+    function playNotificationSound() {
+        const sound = document.getElementById("notificationSound");
+        sound.play().catch((error) => {
+            console.error("Error playing notification sound:", error);
+        });
+    }
+
+    // Update Device
+    function updateDevice(deviceId, currentMarkerID, currentDeviceID) {
+        const newMarkerID = prompt("Enter new Marker ID", currentMarkerID);
+        const newDeviceID = prompt("Enter new Device ID", currentDeviceID);
+
+        if (newMarkerID === null || newDeviceID === null) {
+            return;  // User canceled the prompt
+        }
+
+        const deviceRef = ref(database, 'devices/' + deviceId);
+        update(deviceRef, {
+            markerID: newMarkerID,
+            deviceID: newDeviceID
+        })
+            .then(() => {
+                console.log("Device updated successfully!");
+            })
+            .catch((error) => {
+                console.error("Error updating device:", error);
+            });
+    }
+
+    // Delete Device
+    function deleteDevice(deviceId) {
+        const deviceRef = ref(database, 'devices/' + deviceId);
+        remove(deviceRef)
+            .then(() => {
+                console.log("Device deleted successfully!");
+            })
+            .catch((error) => {
+                console.error("Error deleting device:", error);
+            });
+    }
+
+    // Delete All Records
+    function deleteAllRecords() {
+        const password = prompt("Enter the password to delete all records:");
+        if (password === "sanu2024") {
+            const devicesRef = ref(database, 'devices');
+            remove(devicesRef)
+                .then(() => {
+                    console.log("All records deleted successfully!");
+                })
+                .catch((error) => {
+                    console.error("Error deleting all records:", error);
+                });
+        } else {
+            alert("Incorrect password! Deletion canceled.");
+        }
+    }
+
+    // Export to Excel
+    function exportToExcel() {
+        const table = document.getElementById("deviceTableBody");
+        const rows = table.querySelectorAll("tr");
+        const data = [["#", "Marker ID", "Device ID"]]; // Table headers
+
+        rows.forEach((row) => {
+            const cells = row.querySelectorAll("td");
+            if (cells.length > 0) {
+                const rowData = Array.from(cells).slice(0, 3).map((cell) => cell.textContent);
+                data.push(rowData);
+            }
+        });
+
+        const worksheet = XLSX.utils.aoa_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Devices");
+        XLSX.writeFile(workbook, "DeviceList.xlsx");
+    }
+
+    // Fetch devices on initial load
+    fetchDevices();
+    window.addDevice = addDevice;
+    window.fetchDevices = fetchDevices;
+    window.updateDevice = updateDevice;
+    window.deleteDevice = deleteDevice;
+    window.deleteAllRecords = deleteAllRecords;
+    window.exportToExcel = exportToExcel;
+
+</script>
+
+</body>
+</html>

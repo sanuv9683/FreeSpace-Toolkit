@@ -13,6 +13,7 @@ let camOnOff = true;
 let codeReader;
 let classList = ['fa-database', 'fa-user', 'fa-id-badge', 'fa-link', 'fa-wifi', 'fa-clock', 'fa-play', 'fa-sync-alt', 'fa-calendar-alt', 'fa-microchip', 'fa-network-wired', 'fa-sim-card', 'fa-tags', 'fa-barcode', 'fa-memory', 'fa-signal', 'fa-info-circle', 'fa-file-alt', 'fa-calendar-check', 'fa-link', 'fa-fingerprint'];
 let array = [5, 7, 8, 18, 19];
+let avoidArray=[8];
 
 window.addEventListener('load', function () {
     hideLoader();
@@ -190,11 +191,13 @@ function searchData() {
                         let html = '';
 
                         for (let key in m) {
-                            html += `<li class="device-info-item">
+                            if (avoidArray.includes(key)) {
+                                html += `<li class="device-info-item">
                                         <span class="badge-number">${key}</span>
                                         <span class="item-title">${m[key][0]}</span>
                                         <span class="item-value">${m[key][1]}</span>
                                      </li>`;
+                            }
                         }
 
                         $('#deviceData').html(html);

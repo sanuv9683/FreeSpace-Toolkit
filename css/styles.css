@@ -241,7 +241,7 @@
 .badge-number {
     background-color: #007bff;
     color: #fff;
-    border-radius: 50%;
+    border-radius: 100px;
     width: 28px;
     height: 28px;
     display: flex;
