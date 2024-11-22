@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>FreeSpace Toolkit</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -39,8 +39,8 @@
     <!-- Add Device Form -->
     <div class="mb-4">
         <h4>Add New Device</h4>
-        <input type="text" id="markerID" placeholder="Enter Marker ID" class="form-control mb-2">
-        <input type="text" id="deviceID" placeholder="Enter Device ID" class="form-control mb-2">
+        <input class="form-control mb-2" id="markerID" placeholder="Enter Marker ID" type="text">
+        <input class="form-control mb-2" id="deviceID" placeholder="Enter Device ID" type="text">
         <button class="btn btn-primary" onclick="addDevice()">Add Device</button>
     </div>
 
@@ -69,12 +69,20 @@
     </div>
 
     <!-- Notification Sound -->
-    <audio id="notificationSound" src="audio/noti.mp3" preload="auto"></audio>
+    <audio id="notificationSound" preload="auto" src="audio/noti.mp3"></audio>
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getDatabase, ref, set, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+    import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import {
+        getDatabase,
+        ref,
+        set,
+        push,
+        onValue,
+        update,
+        remove
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
     // Firebase configuration
     const firebaseConfig = {
@@ -137,7 +145,7 @@
             <td>${device.deviceID}</td>
             <td>
               <button class="btn btn-sm btn-warning" onclick="updateDevice('${key}', '${device.markerID}', '${device.deviceID}')">Edit</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteDevice('${key}')">Delete</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteDevice('${key}',${device.markerID})">Delete</button>
             </td>
           `;
                     tableBody.appendChild(row);
@@ -182,15 +190,18 @@
     }
 
     // Delete Device
-    function deleteDevice(deviceId) {
-        const deviceRef = ref(database, 'devices/' + deviceId);
-        remove(deviceRef)
-            .then(() => {
-                console.log("Device deleted successfully!");
-            })
-            .catch((error) => {
-                console.error("Error deleting device:", error);
-            });
+    function deleteDevice(deviceId, mid) {
+        let res = confirm("Do you want to delete : " + mid + " ?");
+        if (res) {
+            const deviceRef = ref(database, 'devices/' + deviceId);
+            remove(deviceRef)
+                .then(() => {
+                    console.log("Device deleted successfully!");
+                })
+                .catch((error) => {
+                    console.error("Error deleting device:", error);
+                });
+        }
     }
 
     // Delete All Records
