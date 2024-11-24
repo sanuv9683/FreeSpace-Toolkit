@@ -13,7 +13,7 @@ let camOnOff = true;
 let codeReader;
 let classList = ['fa-database', 'fa-user', 'fa-id-badge', 'fa-link', 'fa-wifi', 'fa-clock', 'fa-play', 'fa-sync-alt', 'fa-calendar-alt', 'fa-microchip', 'fa-network-wired', 'fa-sim-card', 'fa-tags', 'fa-barcode', 'fa-memory', 'fa-signal', 'fa-info-circle', 'fa-file-alt', 'fa-calendar-check', 'fa-link', 'fa-fingerprint'];
 let array = [5, 7, 8, 18, 19];
-let avoidArray=[8];
+let avoidArray = [];
 
 window.addEventListener('load', function () {
     hideLoader();
@@ -156,10 +156,10 @@ function searchData() {
                     <div class="info-section-value">${ls[1]}</div>
                   </div>`
                     $('#f-deviceData').append(htmlM);
-                }else{
+                } else {
                     if (i === 21) {
-                        console.log(res[i]);
-                        let mRes=resEdited
+                        // console.log(res[i]);
+                        let mRes = resEdited
                             .replace(/<hr\/>/g, '<br/>')
                             .replace(/<hr>/g, '<br/>')
                             .replace(/"/g, '')
@@ -190,19 +190,18 @@ function searchData() {
 
                         let html = '';
 
-                        for (let key in m) {
-                            if (avoidArray.includes(key)) {
+                        for (let j = 0; j < m.length; j++) {
+                            if (!avoidArray.includes(j)) {
                                 html += `<li class="device-info-item">
-                                        <span class="badge-number">${key}</span>
-                                        <span class="item-title">${m[key][0]}</span>
-                                        <span class="item-value">${m[key][1]}</span>
-                                     </li>`;
+                                        <span class="badge-number">${j}</span>
+                                        <span class="item-title">${m[j][0]}</span>
+                                        <span class="item-value">${m[j][1]}</span>
+                                         </li>`;
                             }
                         }
-
                         $('#deviceData').html(html);
 
-                    }else{
+                    } else {
                         let row = `<tr>
                                 <td>${i}</td>
                                 <td>${res[i]}</td>
@@ -212,7 +211,8 @@ function searchData() {
 
                 }
             }
-        },
+        }
+        ,
         error: function (res) {
             hideLoader();
             alert("Something Wrong - Check ID");
