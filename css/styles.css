@@ -299,7 +299,7 @@
     color: #212529;
 }
 .json-array, .json-object {
-    margin-left: 20px;
+    margin-left: 4px;
     border-left: 2px solid #e9ecef;
     padding-left: 10px;
     margin-bottom: 10px;
