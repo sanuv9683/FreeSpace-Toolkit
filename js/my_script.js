@@ -158,48 +158,54 @@ function searchData() {
                     $('#f-deviceData').append(htmlM);
                 } else {
                     if (i === 21) {
-                        // console.log(res[i]);
                         let mRes = resEdited
                             .replace(/<hr\/>/g, '<br/>')
                             .replace(/<hr>/g, '<br/>')
-                            .replace(/"/g, '')
-                            .replace(/\n/g, '')
                             .replace(/_/g, ' ')
-                            .replace(/}/g, ' ')
-                            .replace(/\\/g, '');
 
                         let mmRes = mRes.split('<br/>');
+                        const responseString=mmRes[i];
 
-                        const extractData = (str) => {
-                            // Modify regex to handle complex values like arrays or multi-line strings
-                            const matchValues = str.match(/(\w[\w\s]+):\s*([^\n]*?(?:\[[^\]]*\]|\{[^}]*\}|[^,]*)),?/g);
+                        // Step 2: Extract the JSON content
+                        const jsonString = responseString.match(/{.*}/)[0]; // Extracts the JSON part from the string
+                        const jsonData = JSON.parse(jsonString); // Converts JSON string to JavaScript object
 
-                            if (!matchValues) return [];
+                        // Step 3: Render JSON dynamically
+                        function renderJson(data, container) {
+                            for (const key in data) {
+                                const value = data[key];
+                                const wrapper = document.createElement("div");
 
-                            const resultArray = matchValues.map(item => {
-                                // Split each match on the first colon to get key-value pairs
-                                const [key, value] = item.split(/:\s(.+)/);
-                                return [key.trim(), value.trim().replace(/,$/, '')]; // Trim trailing commas if present;
-                            });
+                                if (typeof value === "object" && value !== null) {
+                                    const keyElement = document.createElement("span");
+                                    keyElement.className = "json-key";
+                                    keyElement.textContent = `${key.toUpperCase()}: `;
 
-                            return resultArray;
-                        };
+                                    const nestedContainer = document.createElement("div");
+                                    nestedContainer.className = "json-object";
+                                    renderJson(value, nestedContainer);
 
-                        // Call the function and store the result
-                        const m = extractData(mmRes[i]);
+                                    wrapper.appendChild(keyElement);
+                                    wrapper.appendChild(nestedContainer);
+                                } else {
+                                    const keyElement = document.createElement("span");
+                                    keyElement.className = "json-key";
+                                    keyElement.textContent = `${key.toUpperCase()}: `;
 
-                        let html = '';
+                                    const valueElement = document.createElement("span");
+                                    valueElement.className = "json-value";
+                                    valueElement.textContent = value;
 
-                        for (let j = 0; j < m.length; j++) {
-                            if (!avoidArray.includes(j)) {
-                                html += `<li class="device-info-item">
-                                        <span class="badge-number">${j}</span>
-                                        <span class="item-title">${m[j][0]}</span>
-                                        <span class="item-value">${m[j][1]}</span>
-                                         </li>`;
+                                    wrapper.appendChild(keyElement);
+                                    wrapper.appendChild(valueElement);
+                                }
+
+                                container.appendChild(wrapper);
                             }
                         }
-                        $('#deviceData').html(html);
+
+                        const container = document.getElementById("deviceData");
+                        renderJson(jsonData, container);
 
                     } else {
                         let row = `<tr>
