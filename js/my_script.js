@@ -134,7 +134,7 @@ function searchData() {
                 .replace(/\\/g, '');
 
             let res = formatedResponse.split('<br/>');
-
+            let count=0;
             for (let i = 0; i < res.length; i++) {
                 if (i < 21) {
                     let ls = res[i].split(/:(.+)/);
@@ -208,11 +208,14 @@ function searchData() {
                         renderJson(jsonData, container);
 
                     } else {
-                        let row = `<tr>
-                                <td>${i}</td>
+                        if (res[i]!==""){
+                            count++;
+                            let row = `<tr>
+                                <td>${count}</td>
                                 <td>${res[i]}</td>
                             </tr>`;
-                        $("#tb").append(row);
+                            $("#tb").prepend(row);
+                        }
                     }
 
                 }
