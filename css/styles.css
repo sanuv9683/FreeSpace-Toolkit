@@ -270,7 +270,10 @@
 /* Responsive design */
 @media (max-width: 768px) {
     .device-info-card {
-        padding: 15px;
+        padding-top: 10px;
+        padding-bottom: 15px;
+        padding-left: 11px;
+        padding-right: 15px;
     }
 
     .card-header h5 {
@@ -303,4 +306,8 @@
     border-left: 2px solid #e9ecef;
     padding-left: 10px;
     margin-bottom: 10px;
+}
+
+.d_wrapper{
+    padding-bottom: 2px;
 }

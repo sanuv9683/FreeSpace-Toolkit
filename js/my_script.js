@@ -175,6 +175,7 @@ function searchData() {
                             for (const key in data) {
                                 const value = data[key];
                                 const wrapper = document.createElement("div");
+                                wrapper.className = "d_wrapper";
 
                                 if (typeof value === "object" && value !== null) {
                                     const keyElement = document.createElement("span");
