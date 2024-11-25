@@ -156,7 +156,7 @@ function searchData() {
                     if (i === 4) {
                         let a=JSON.parse(ls[1].toLowerCase().trim());
                         if (a){
-                            ls[1] = '<span class="badge bg-success">True</span>'
+                            ls[1] = '<span class="badge bg-primary">True</span>'
                         }else{
                             ls[1] =  '<span class="badge bg-danger">False</span>'
                         }
@@ -165,7 +165,7 @@ function searchData() {
                     if (i === 6) {
                         let a=JSON.parse(ls[1].toLowerCase().trim());
                         if (a){
-                            ls[1] = '<span class="badge bg-success">True</span>'
+                            ls[1] = '<span class="badge bg-primary">True</span>'
                         }else{
                             ls[1] =  '<span class="badge bg-danger">False</span>'
                         }
