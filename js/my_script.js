@@ -11,7 +11,7 @@ const Toast = Swal.mixin({
 });
 let camOnOff = true;
 let codeReader;
-let classList = ['fa-database', 'fa-user', 'fa-id-badge', 'fa-link', 'fa-wifi', 'fa-clock', 'fa-play', 'fa-sync-alt', 'fa-calendar-alt', 'fa-microchip', 'fa-network-wired', 'fa-sim-card', 'fa-tags', 'fa-barcode', 'fa-memory', 'fa-signal', 'fa-info-circle', 'fa-file-alt', 'fa-calendar-check', 'fa-link', 'fa-fingerprint'];
+let classList = ['fa-database', 'fa-user', 'fa-id-badge', 'fa-link', 'fa-wifi', 'fa-clock', 'fa-play', 'fa-sync-alt', 'fa-calendar-alt', 'fa-microchip', 'fa-network-wired', 'fa-sim-card', 'fa-tags', 'fa-barcode', 'fa-memory', 'fa-signal', 'fa-info-circle', 'fa-file-alt', 'fa-calendar-check', 'fa-link', 'fa-fingerprint','fa-battery-full'];
 let array = [5, 7, 8, 18, 19];
 
 
@@ -147,8 +147,8 @@ function searchData() {
                         } else {
                             ls[1] ="...";
                         }
-
                     }
+
                     if (i === 3) {
                         ls[1] = `<a target="_blank" href="${ls[1]}">Visit Agent</a>`
                     }
@@ -176,9 +176,9 @@ function searchData() {
                     }
 
                     let htmlM = `<div class="info-section">
-                    <div class="info-section-header"><i class="fas ${classList[i]}"></i>${ls[0].toUpperCase()}</div>
-                    <div class="info-section-value">${ls[1]}</div>
-                  </div>`
+                                        <div class="info-section-header"><i class="fas ${classList[i]}"></i>${ls[0].toUpperCase()}</div>
+                                        <div class="info-section-value">${ls[1]}</div>
+                                      </div>`;
                     $('#f-deviceData').append(htmlM);
 
                 } else {
@@ -186,10 +186,18 @@ function searchData() {
                         let mRes = resEdited
                             .replace(/<hr\/>/g, '<br/>')
                             .replace(/<hr>/g, '<br/>')
-                            .replace(/_/g, ' ')
+                            .replace(/_/g, ' ');
 
                         let mmRes = mRes.split('<br/>');
                         const responseString=mmRes[i];
+                        const battery = responseString.match(/"battery":\s*([\d.]+)/);
+
+                        let htmlM = `<div class="info-section">
+                                            <div class="info-section-header"><i class="fas ${classList[i]}"></i>${'battery'.toUpperCase()}</div>
+                                            <div class="info-section-value">${battery[1]}</div>
+                                          </div>`;
+                        $('#f-deviceData').append(htmlM);
+
 
                         // Step 2: Extract the JSON content
                         const jsonString = responseString.match(/{.*}/)[0]; // Extracts the JSON part from the string
