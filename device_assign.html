@@ -9,7 +9,7 @@
     <link href="css/styles.css?v=1.5" rel="stylesheet">
 </head>
 <body>
-    
+
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg navbar-custom">
     <a class="navbar-brand" href="#">Fressspace</a>
@@ -33,13 +33,25 @@
 </nav>
 
 <div class="container my-4">
-
+    <div class="row">
+        <!--QR Start-->
+        <div class="col-12">
+            <div class="d-flex justify-content-center">
+                <video height="200" id="video" style="display: none" width="300"></video>
+            </div>
+        </div>
+        <!--QR ENDS-->
+    </div>
     <!-- Add Device Form -->
     <div class="mb-4">
         <h4>Add New Device</h4>
         <input class="form-control mb-2" id="markerID" placeholder="Enter Marker ID" type="text">
         <input class="form-control mb-2" id="deviceID" placeholder="Enter Device ID" type="text">
-        <button class="btn btn-primary" onclick="addDevice()">Add Device</button>
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="addDevice()">Add Device</button>
+            <button class="btn btn-danger" id="clear">Clear</button>
+            <button class="btn btn-warning" id="qrStp">.....</button>
+        </div>
     </div>
 
     <!-- Device List Table -->
@@ -266,6 +278,107 @@
     window.deleteAllRecords = deleteAllRecords;
     window.exportToExcel = exportToExcel;
     initializeUser();
+</script>
+<script>
+    let camOnOff = true;
+    let codeReader;
+
+    window.addEventListener('load', function () {
+        codeReader = new ZXing.BrowserQRCodeReader();
+        camSetting();
+    });
+    function camSetting() {
+        let rp = localStorage.getItem('cam4');
+        if (rp == null) {
+            camOnOff = true;
+            localStorage.setItem('cam4', 'true');
+            decodeOnce(codeReader, 0);
+            updateButton(true);
+        } else {
+            let rp = localStorage.getItem('cam4');
+            if (rp === 'true') {
+                decodeOnce(codeReader, 0);
+                camOnOff = true;
+                updateButton(true);
+            } else if (rp === 'false') {
+                camOnOff = false;
+                updateButton(false);
+            }
+        }
+    }
+    function updateButton(rs) {
+        const button = document.getElementById("qrStp");
+        if (!rs) {
+            button.textContent = "Cam : On";
+        } else {
+
+            button.textContent = "Cam : Off";
+        }
+    }
+    function setCam(rs) {
+        localStorage.setItem('cam4', rs);
+        if (rs === 'true') updateButton(true);
+        if (rs === 'false') updateButton(false);
+    }
+    function decodeOnce(codeReader, selectedDeviceId) {
+        fadeInQr();
+
+        codeReader.decodeFromInputVideoDevice(selectedDeviceId, 'video').then((result) => {
+            //print the result
+            getDeviceID(result.text);
+
+        }).catch((err) => {
+            console.error(err);
+        })
+    }
+    function fadeInQr() {
+        $("#video").css('display', 'block');
+    }
+    function fadeOutQr() {
+        $("#video").css('display', 'none');
+    }
+
+    $("#qrStp").click(function () {
+        if (camOnOff === true) {
+            codeReader.reset();
+            fadeOutQr();
+            camOnOff = false;
+            setCam('false');
+        } else {
+            fadeInQr();
+            decodeOnce(codeReader, 0);
+            setCam('true');
+            camOnOff = true;
+        }
+
+    });
+
+    $("#clear").click(function () {
+        clearAll();
+        codeReader.reset();
+        camSetting();
+    });
+
+    function clearAll() {
+        $("#markerID").val("");
+        $("#deviceID").val("");
+        $("#markerID").focus();
+    }
+
+    function getDeviceID(decodedText) {
+        $.ajax({
+            url: decodedText.replace("http://", "https://"),
+            success: function (res) {
+                let decodedID = $(res).find('#temp-table').children('tbody').children('tr:nth-child(1)').children('td:nth-child(2)').text();
+                $('#deviceID').val(decodedID);
+                codeReader.reset();
+                fadeOutQr();
+            }
+        });
+    }
+
+
+
 </script>
 
 </body>

@@ -279,7 +279,6 @@ function clearAll() {
     $("#inp").focus();
     $('#deviceData').empty();
     $('#f-deviceData').empty();
-
 }
 
 function copyToClipboard() {
@@ -386,7 +385,6 @@ $("#qrStp").click(function () {
 $("#clear").click(function () {
     clearAll();
     codeReader.reset();
-    onOff = 1;
     camSetting();
 });
 
