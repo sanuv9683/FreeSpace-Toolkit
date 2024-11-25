@@ -311,3 +311,7 @@
 .d_wrapper{
     padding-bottom: 2px;
 }
+
+.card-body{
+    padding: 0;
+}
