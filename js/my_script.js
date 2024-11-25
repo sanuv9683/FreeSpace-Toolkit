@@ -119,6 +119,7 @@ function searchData() {
         success: function (response) {
             hideLoader();
             $('#f-deviceData').empty();
+            $('#deviceData').empty();
 
             let resEdited = convertToBritishTime(response);
 
