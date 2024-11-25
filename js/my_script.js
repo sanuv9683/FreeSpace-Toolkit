@@ -13,7 +13,7 @@ let camOnOff = true;
 let codeReader;
 let classList = ['fa-database', 'fa-user', 'fa-id-badge', 'fa-link', 'fa-wifi', 'fa-clock', 'fa-play', 'fa-sync-alt', 'fa-calendar-alt', 'fa-microchip', 'fa-network-wired', 'fa-sim-card', 'fa-tags', 'fa-barcode', 'fa-memory', 'fa-signal', 'fa-info-circle', 'fa-file-alt', 'fa-calendar-check', 'fa-link', 'fa-fingerprint'];
 let array = [5, 7, 8, 18, 19];
-let avoidArray = [8,23];
+
 
 window.addEventListener('load', function () {
     hideLoader();
@@ -141,10 +141,34 @@ function searchData() {
 
                     if (i === 0) {
                         ls[0] = "Device Type";
-                        ls[1] = ls[1].substring(66, ls[1].length);
+                        const match = ls[1].match(/PT: (\w+)/);
+                        if (match) {
+                            ls[1] =match[1];
+                        } else {
+                            ls[1] ="...";
+                        }
+
                     }
                     if (i === 3) {
                         ls[1] = `<a target="_blank" href="${ls[1]}">Visit Agent</a>`
+                    }
+
+                    if (i === 4) {
+                        let a=JSON.parse(ls[1].toLowerCase().trim());
+                        if (a){
+                            ls[1] = '<span class="badge bg-success">True</span>'
+                        }else{
+                            ls[1] =  '<span class="badge bg-danger">False</span>'
+                        }
+                    }
+
+                    if (i === 6) {
+                        let a=JSON.parse(ls[1].toLowerCase().trim());
+                        if (a){
+                            ls[1] = '<span class="badge bg-success">True</span>'
+                        }else{
+                            ls[1] =  '<span class="badge bg-danger">False</span>'
+                        }
                     }
 
                     if (array.includes(i)) {
@@ -156,6 +180,7 @@ function searchData() {
                     <div class="info-section-value">${ls[1]}</div>
                   </div>`
                     $('#f-deviceData').append(htmlM);
+
                 } else {
                     if (i === 21) {
                         let mRes = resEdited
