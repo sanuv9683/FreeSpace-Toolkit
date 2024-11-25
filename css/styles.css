@@ -270,7 +270,7 @@
 /* Responsive design */
 @media (max-width: 768px) {
     .device-info-card {
-        padding-top: 10px;
+        padding-top: 11px;
         padding-bottom: 15px;
         padding-left: 11px;
         padding-right: 15px;
@@ -296,10 +296,10 @@
 
 .json-key {
     font-weight: bold;
-    color: #0d6efd;
+    color: #027bfff2;
 }
 .json-value {
-    color: #212529;
+    color: #556779;
 }
 .json-array, .json-object {
     margin-left: 4px;
