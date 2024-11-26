@@ -148,6 +148,9 @@
                 document.getElementById("markerID").value = parseInt(markerID)+1;;
                 document.getElementById("deviceID").value = "";
                 document.getElementById("deviceID").focus();
+
+                codeReader.reset();
+                camSetting();
             })
             .catch((error) => {
                 console.error("Error adding device:", error);
