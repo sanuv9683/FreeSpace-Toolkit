@@ -153,8 +153,8 @@
 
     // Add Device
     function addDevice() {
-        const markerID = document.getElementById("markerID").value;
-        const deviceID = document.getElementById("deviceID").value;
+        const markerID = document.getElementById("markerID").value.trim();
+        const deviceID = document.getElementById("deviceID").value.trim();
 
         if (!markerID || !deviceID) {
             alert("Please enter both Marker ID and Device ID");
@@ -162,29 +162,53 @@
         }
 
         const devicesRef = ref(database, 'devices');
-        const newDeviceRef = push(devicesRef);
-        initializeUser();
-        const m_userName = localStorage.getItem("userName");
-        set(newDeviceRef, {
-            markerID: markerID,
-            deviceID: deviceID,
-            userName: m_userName
-        })
-            .then(() => {
-                console.log("Device added successfully!");
-                document.getElementById("markerID").value = parseInt(markerID) + 1;
-                ;
-                document.getElementById("deviceID").value = "";
-                document.getElementById("deviceID").focus();
 
-                codeReader.reset();
-                camSetting();
-                clearAll();
-            })
-            .catch((error) => {
-                console.error("Error adding device:", error);
-            });
+        // Fetch current devices to check for duplicates
+        onValue(devicesRef, (snapshot) => {
+            const data = snapshot.val();
+            let isDuplicate = false;
+
+            if (data) {
+                // Check for duplicate Marker ID or Device ID
+                Object.keys(data).forEach((key) => {
+                    const device = data[key];
+                    if (device.markerID === markerID || device.deviceID === deviceID) {
+                        isDuplicate = true;
+                    }
+                });
+            }
+
+            if (isDuplicate) {
+                alert("Duplicate Marker ID or Device ID found. Please enter unique values.");
+            } else {
+                // Proceed to add device if no duplicates are found
+                const newDeviceRef = push(devicesRef);
+                initializeUser();
+                const m_userName = localStorage.getItem("userName");
+                set(newDeviceRef, {
+                    markerID: markerID,
+                    deviceID: deviceID,
+                    userName: m_userName
+                })
+                    .then(() => {
+                        console.log("Device added successfully!");
+                        document.getElementById("markerID").value = parseInt(markerID) + 1;
+                        document.getElementById("deviceID").value = "";
+                        document.getElementById("deviceID").focus();
+
+                        codeReader.reset();
+                        camSetting();
+                        clearAll();
+                    })
+                    .catch((error) => {
+                        console.error("Error adding device:", error);
+                    });
+            }
+        }, {
+            onlyOnce: true // Ensure the listener only runs once
+        });
     }
+
 
     // Fetch Devices
     function fetchDevices() {
