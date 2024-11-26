@@ -43,9 +43,9 @@
         <!--QR ENDS-->
     </div>
     <!-- Add Device Form -->
-    <div class="mb-4">
+    <div class="mb-2  sticky-top bg-white pb-2">
         <h4>Add New Device</h4>
-        <input class="form-control mb-2" id="markerID" placeholder="Enter Marker ID" type="text">
+        <input class="form-control mb-2" id="markerID" placeholder="Enter Map ID" type="text">
         <input class="form-control mb-2" id="deviceID" placeholder="Enter Device ID" type="text">
         <div class="btn-group">
             <button class="btn btn-primary" onclick="addDevice()">Add Device</button>
@@ -61,7 +61,7 @@
             <thead>
             <tr>
                 <th>#</th>
-                <th>Marker ID</th>
+                <th>Map ID</th>
                 <th>Device ID</th>
                 <th>Actions</th>
             </tr>
@@ -73,9 +73,11 @@
     </div>
 
     <!-- Export and Delete All Records -->
-    <div class="mt-4 d-flex justify-content-between">
-        <button class="btn btn-success" onclick="exportToExcel()">Export to Excel</button>
-        <button class="btn btn-danger" onclick="deleteAllRecords()">Delete All Records</button>
+    <div class="mt-1 d-flex justify-content-end mb-5">
+        <div class="btn-group btn-group-sm">
+        <button class="btn btn-danger" onclick="deleteAllRecords()">Clear All</button>
+        <button class="btn btn-primary" onclick="exportToExcel()">Print</button>
+        </div>
     </div>
 
     <!-- Notification Sound -->
