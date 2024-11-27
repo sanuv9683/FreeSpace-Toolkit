@@ -5,6 +5,13 @@
     background-size: cover;
     background-position: center;
 }
+.inner_loader {
+    width: 92px;
+    height: 39px;
+    background: url("../images/loader.gif");
+    background-size: cover;
+    background-position: center;
+}
 
 #str {
     color: #dc3545;;

@@ -8,8 +8,32 @@
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="css/styles.css?v=1.9" rel="stylesheet">
+    <style>
+        .loader{
+            width: 100vw;
+            height: 100vh;
+            position: fixed;
+            background-color: white;
+            z-index: 2;
+        }
+        .inner_loader{
+            width: 141px!important;
+            height: 65px!important;
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            top: 0;
+            margin: auto;
+        }
+    </style>
 </head>
 <body>
+
+<div class="loader" id="inner-boxs">
+    <div class="inner_loader" >
+    </div>
+</div>
 
 <section class="container-fluid mt-2">
     <section class="row">
@@ -105,14 +129,14 @@
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
-    console.log(`ID: ${id}`);
-    searchData(id);
+
 
     let classList = ['fa-database', 'fa-user', 'fa-id-badge', 'fa-link', 'fa-wifi', 'fa-clock', 'fa-play', 'fa-sync-alt', 'fa-calendar-alt', 'fa-microchip', 'fa-network-wired', 'fa-sim-card', 'fa-tags', 'fa-barcode', 'fa-memory', 'fa-signal', 'fa-info-circle', 'fa-file-alt', 'fa-calendar-check', 'fa-link', 'fa-fingerprint','fa-battery-full'];
     let array = [5, 7, 8, 18, 19];
 
     window.addEventListener('load', function () {
         hideLoader();
+        searchData(id);
     })
 
     function convertToBritishTime(inputString) {
@@ -155,11 +179,11 @@
     }
 
     function hideLoader() {
-        $("#inner-box").css('display', 'none');
+        $("#inner-boxs").css('display', 'none');
     }
 
     function showLoader() {
-        $("#inner-box").css('display', 'block');
+        $("#inner-boxs").css('display', 'block');
     }
 
     function clearTable() {
@@ -323,13 +347,7 @@
         });
     }
 
-    function fadeOutQr() {
-        $("#video").css('display', 'none');
-    }
 
-    function fadeInQr() {
-        $("#video").css('display', 'block');
-    }
 
 
 </script>
