@@ -214,7 +214,7 @@
                     row.innerHTML = `
             <td>${count++}</td>
             <td>${device.markerID}</td>
-            <td>${device.deviceID}</td>
+            <td><a target="_blank" href="device_data.html?id=${device.deviceID}">${device.deviceID}</a></td>
             <td>
               <button class="btn btn-sm btn-warning" onclick="updateDevice('${key}', '${device.markerID}', '${device.deviceID}')">Edit</button>
               <button class="btn btn-sm btn-danger" onclick="deleteDevice('${key}',${device.markerID})">Delete</button>
