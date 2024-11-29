@@ -6,6 +6,7 @@
     <title>FreeSpace Toolkit</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="css/styles.css?v=1.5" rel="stylesheet">
 </head>
@@ -47,7 +48,12 @@
     <div class="mb-2  sticky-top bg-white pb-2">
         <h4>Add New Device</h4>
         <input class="form-control mb-2" id="markerID" placeholder="Enter Map ID" type="text">
-        <input class="form-control mb-2" id="deviceID" placeholder="Enter Device ID" type="text">
+        <div class="input-group mb-2">
+            <input class="form-control " id="deviceID" placeholder="Enter Device ID" type="text">
+            <button class="btn btn-danger" id="btnPaste" type="button"><i class="fas fa-paste"></i> Paste</button>
+            <button class="btn btn-primary" id="btnCpy" type="button"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+
         <div class="btn-group">
             <button class="btn btn-primary" onclick="addDevice()">Add Device</button>
             <button class="btn btn-danger" id="clear">Clear</button>
@@ -430,6 +436,17 @@
 
 </script>
 <script>
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "bottom-center",
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        }
+    });
     // Add search functionality
     document.getElementById("searchInput").addEventListener("keyup", function () {
         const query = this.value.toLowerCase(); // Get the search query
@@ -446,6 +463,38 @@
                 row.style.display = "none"; // Hide the row
             }
         });
+    });
+
+    $("#btnCpy").click(function () {
+        const inputField = document.getElementById("deviceID");
+
+        // Focus the input field for Safari compatibility
+        inputField.focus();
+        inputField.select();
+        inputField.setSelectionRange(0, 99999);
+
+        // Attempt Clipboard API if supported
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(inputField.value)
+                .then(() => {
+                    Toast.fire({
+                        icon: "success",
+                        title: "Copied : " + inputField.value
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        }
+    });
+
+    document.getElementById('btnPaste').addEventListener('click', async () => {
+        try {
+            const text = await navigator.clipboard.readText(); // Read text from the clipboard
+            document.getElementById('deviceID').value = text; // Set the input field's value to the clipboard text
+        } catch (err) {
+            console.error('Failed to paste text: ', err);
+        }
     });
 
 </script>
