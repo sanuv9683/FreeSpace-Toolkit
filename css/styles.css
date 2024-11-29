@@ -322,3 +322,11 @@
 .card-body{
     padding: 0;
 }
+
+#btnPaste,#btnCpy{
+    font-family: "Font Awesome 6 Free";
+    font-size: 13px;
+}
+#btnPaste>i,#btnCpy>i{
+    font-size: initial;
+}
