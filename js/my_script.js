@@ -11,7 +11,7 @@ const Toast = Swal.mixin({
 });
 let camOnOff = true;
 let codeReader;
-let classList = ['fa-database', 'fa-user', 'fa-id-badge', 'fa-link', 'fa-wifi', 'fa-clock', 'fa-play', 'fa-sync-alt', 'fa-calendar-alt', 'fa-microchip', 'fa-network-wired', 'fa-sim-card', 'fa-tags', 'fa-barcode', 'fa-memory', 'fa-signal', 'fa-info-circle', 'fa-file-alt', 'fa-calendar-check', 'fa-link', 'fa-fingerprint','fa-battery-full'];
+let classList = ['fa-database', 'fa-user', 'fa-id-badge', 'fa-link', 'fa-wifi', 'fa-clock', 'fa-play', 'fa-sync-alt', 'fa-calendar-alt', 'fa-microchip', 'fa-network-wired', 'fa-sim-card', 'fa-tags', 'fa-barcode', 'fa-memory', 'fa-signal', 'fa-info-circle', 'fa-file-alt', 'fa-calendar-check', 'fa-link', 'fa-fingerprint', 'fa-battery-full'];
 let array = [5, 7, 8, 18, 19];
 
 
@@ -55,6 +55,16 @@ window.addEventListener('load', function () {
     //         console.error(err)
     //     })
 })
+
+document.getElementById('btnPaste').addEventListener('click', async () => {
+    try {
+        const text = await navigator.clipboard.readText(); // Read text from the clipboard
+        document.getElementById('inp').value = text; // Set the input field's value to the clipboard text
+    } catch (err) {
+        console.error('Failed to paste text: ', err);
+    }
+});
+
 
 function convertToBritishTime(inputString) {
     const regex = /_time":\s*"(\d{4}-\d{2}-\d{2})\s(\d{2}):(\d{2}):(\d{2})\sUTC"/g;
@@ -135,40 +145,40 @@ function searchData() {
                 .replace(/\\/g, '');
 
             let res = formatedResponse.split('<br/>');
-            let count=0;
+            let count = 0;
             for (let i = 0; i < res.length; i++) {
                 if (i < 21) {
                     let ls = res[i].split(/:(.+)/);
 
                     if (i === 0) {
                         ls[0] = "Device Type";
-                        const match = ls[1].match(/PT: (\w+)/);
+                        const match = ls[1].match(/PT:\s*([\w\s]+)/);
                         if (match) {
-                            ls[1] =match[1];
+                            ls[1] = match[1];
                         } else {
-                            ls[1] ="...";
+                            ls[1] = "...";
                         }
                     }
 
                     if (i === 3) {
-                        ls[1] = `<a target="_blank" href="${ls[1]}">Visit Agent</a>`
+                        ls[1] = `<a class="la" target="_blank" href="${ls[1]}">Visit Agent</a>`
                     }
 
                     if (i === 4) {
-                        let a=JSON.parse(ls[1].toLowerCase().trim());
-                        if (a){
+                        let a = JSON.parse(ls[1].toLowerCase().trim());
+                        if (a) {
                             ls[1] = '<span class="badge bg-primary">True</span>'
-                        }else{
-                            ls[1] =  '<span class="badge bg-danger">False</span>'
+                        } else {
+                            ls[1] = '<span class="badge bg-danger">False</span>'
                         }
                     }
 
                     if (i === 6) {
-                        let a=JSON.parse(ls[1].toLowerCase().trim());
-                        if (a){
+                        let a = JSON.parse(ls[1].toLowerCase().trim());
+                        if (a) {
                             ls[1] = '<span class="badge bg-primary">True</span>'
-                        }else{
-                            ls[1] =  '<span class="badge bg-danger">False</span>'
+                        } else {
+                            ls[1] = '<span class="badge bg-danger">False</span>'
                         }
                     }
 
@@ -190,60 +200,67 @@ function searchData() {
                             .replace(/_/g, ' ');
 
                         let mmRes = mRes.split('<br/>');
-                        const responseString=mmRes[i];
+                        const responseString = mmRes[i];
                         const battery = responseString.match(/"battery":\s*([\d.]+)/);
-
-                        let htmlM = `<div class="info-section">
+                        try {
+                            let htmlM = `<div class="info-section">
                                             <div class="info-section-header"><i class="fas ${classList[i]}"></i>${'battery'.toUpperCase()}</div>
                                             <div class="info-section-value">${battery[1]}</div>
                                           </div>`;
-                        $('#f-deviceData').append(htmlM);
-
-
-                        // Step 2: Extract the JSON content
-                        const jsonString = responseString.match(/{.*}/)[0]; // Extracts the JSON part from the string
-                        const jsonData = JSON.parse(jsonString); // Converts JSON string to JavaScript object
-
-                        // Step 3: Render JSON dynamically
-                        function renderJson(data, container) {
-                            for (const key in data) {
-                                const value = data[key];
-                                const wrapper = document.createElement("div");
-                                wrapper.className = "d_wrapper";
-
-                                if (typeof value === "object" && value !== null) {
-                                    const keyElement = document.createElement("span");
-                                    keyElement.className = "json-key";
-                                    keyElement.textContent = `${key.toUpperCase()}: `;
-
-                                    const nestedContainer = document.createElement("div");
-                                    nestedContainer.className = "json-object";
-                                    renderJson(value, nestedContainer);
-
-                                    wrapper.appendChild(keyElement);
-                                    wrapper.appendChild(nestedContainer);
-                                } else {
-                                    const keyElement = document.createElement("span");
-                                    keyElement.className = "json-key";
-                                    keyElement.textContent = `${key.toUpperCase()}: `;
-
-                                    const valueElement = document.createElement("span");
-                                    valueElement.className = "json-value";
-                                    valueElement.textContent = value;
-
-                                    wrapper.appendChild(keyElement);
-                                    wrapper.appendChild(valueElement);
-                                }
-
-                                container.appendChild(wrapper);
-                            }
+                            $('#f-deviceData').append(htmlM);
+                        } catch (ex) {
+                            console.log("No Battery Found");
                         }
 
-                        const container = document.getElementById("deviceData");
-                        renderJson(jsonData, container);
+                        try {
+                            // Step 2: Extract the JSON content
+                            const jsonString = responseString.match(/{.*}/)[0]; // Extracts the JSON part from the string
+                            const jsonData = JSON.parse(jsonString); // Converts JSON string to JavaScript object
 
+                            // Step 3: Render JSON dynamically
+                            function renderJson(data, container) {
+                                for (const key in data) {
+                                    const value = data[key];
+                                    const wrapper = document.createElement("div");
+                                    wrapper.className = "d_wrapper";
+
+                                    if (typeof value === "object" && value !== null) {
+                                        const keyElement = document.createElement("span");
+                                        keyElement.className = "json-key";
+                                        keyElement.textContent = `${key.toUpperCase()}: `;
+
+                                        const nestedContainer = document.createElement("div");
+                                        nestedContainer.className = "json-object";
+                                        renderJson(value, nestedContainer);
+
+                                        wrapper.appendChild(keyElement);
+                                        wrapper.appendChild(nestedContainer);
+                                    } else {
+                                        const keyElement = document.createElement("span");
+                                        keyElement.className = "json-key";
+                                        keyElement.textContent = `${key.toUpperCase()}: `;
+
+                                        const valueElement = document.createElement("span");
+                                        valueElement.className = "json-value";
+                                        valueElement.textContent = value;
+
+                                        wrapper.appendChild(keyElement);
+                                        wrapper.appendChild(valueElement);
+                                    }
+
+                                    container.appendChild(wrapper);
+                                }
+                            }
+
+                            const container = document.getElementById("deviceData");
+                            renderJson(jsonData, container);
+                        } catch (e) {
+                            let at=$(".la");
+                            at.css('color','red');
+                            at.text('Link is Not Working');
+                        }
                     } else {
-                        if (res[i]!==""){
+                        if (res[i] !== "") {
                             count++;
                             let row = `<tr>
                                 <td>${count}</td>
