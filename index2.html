@@ -570,14 +570,35 @@
     });
 
     // Paste button functionality
+    // Check for Clipboard API support
     document.getElementById('btnPaste').addEventListener('click', async () => {
+        const inputField = document.getElementById('inp');
         try {
-            const text = await navigator.clipboard.readText(); // Read text from the clipboard
-            document.getElementById('inp').value = text; // Set the input field's value to the clipboard text
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                // Modern Clipboard API
+                const text = await navigator.clipboard.readText();
+                inputField.value = text;
+                alert('Pasted successfully!');
+            } else {
+                // Fallback for older browsers or limited permissions
+                fallbackPaste(inputField);
+            }
         } catch (err) {
             console.error('Failed to paste text: ', err);
+            alert('Clipboard access denied. Please enable clipboard permissions or update your browser.');
         }
     });
+
+    // Fallback method for older iOS/Safari
+    function fallbackPaste(inputField) {
+        const tempInput = document.createElement('input');
+        document.body.appendChild(tempInput);
+        tempInput.focus();
+        document.execCommand('paste');
+        inputField.value = tempInput.value; // Copy the pasted value to the main input field
+        document.body.removeChild(tempInput);
+        alert('Pasted using fallback method!');
+    }
 
 </script>
 </body>
