@@ -59,12 +59,57 @@ window.addEventListener('load', function () {
 document.getElementById('btnPaste').addEventListener('click', async () => {
     try {
         const text = await navigator.clipboard.readText(); // Read text from the clipboard
-        document.getElementById('inp').value = text; // Set the input field's value to the clipboard text
+        document.getElementById('inp').value = formatDeviceId(text); // Set the input field's value to the clipboard text
     } catch (err) {
         console.error('Failed to paste text: ', err);
     }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+    const inputField = document.getElementById('inp');
+
+    // Format on user input (typing and pasting)
+    inputField.addEventListener('input', () => {
+        inputField.value = formatDeviceId(inputField.value);
+    });
+
+    // Observe value changes for programmatic updates
+    const observer = new MutationObserver(() => {
+        inputField.value = formatDeviceId(inputField.value);
+    });
+
+    observer.observe(inputField, { attributes: true, attributeFilter: ['value'] });
+
+});
+
+$("#qrStp").click(function () {
+    if (camOnOff === true) {
+        codeReader.reset();
+        fadeOutQr();
+        camOnOff = false;
+        setCam('false');
+    } else {
+        fadeInQr();
+        decodeOnce(codeReader, 0);
+        setCam('true');
+        camOnOff = true;
+    }
+
+});
+
+$("#clear").click(function () {
+    clearAll();
+    codeReader.reset();
+    camSetting();
+});
+
+$("#btnCpy").click(function () {
+    copyToClipboard();
+});
+
+$('#search').click(function () {
+    searchData();
+});
 
 function convertToBritishTime(inputString) {
     const regex = /_time":\s*"(\d{4}-\d{2}-\d{2})\s(\d{2}):(\d{2}):(\d{2})\sUTC"/g;
@@ -327,7 +372,7 @@ function getDeviceID(decodedText) {
         url: decodedText.replace("http://", "https://"),
         success: function (res) {
             let decodedID = $(res).find('#temp-table').children('tbody').children('tr:nth-child(1)').children('td:nth-child(2)').text();
-            $('#inp').val(decodedID);
+            $('#inp').val(formatDeviceId(decodedID));
             copyToClipboard();
             searchData();
             codeReader.reset();
@@ -384,31 +429,19 @@ function updateButton(rs) {
     }
 }
 
-$("#qrStp").click(function () {
-    if (camOnOff === true) {
-        codeReader.reset();
-        fadeOutQr();
-        camOnOff = false;
-        setCam('false');
-    } else {
-        fadeInQr();
-        decodeOnce(codeReader, 0);
-        setCam('true');
-        camOnOff = true;
+function formatDeviceId(value) {
+    // Remove all non-numeric characters
+    value = value.replace(/[^0-9]/g, '');
+
+    // Format the value as 1234-345-344
+    if (value.length > 4) {
+        value = value.slice(0, 4) + '-' + value.slice(4);
+    }
+    if (value.length > 8) {
+        value = value.slice(0, 8) + '-' + value.slice(8);
     }
 
-});
+    // Limit to 10 digits (formatted as 1234-345-344)
+    return value.slice(0, 12);
+}
 
-$("#clear").click(function () {
-    clearAll();
-    codeReader.reset();
-    camSetting();
-});
-
-$("#btnCpy").click(function () {
-    copyToClipboard();
-});
-
-$('#search').click(function () {
-    searchData();
-});
