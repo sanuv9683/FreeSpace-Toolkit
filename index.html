@@ -2,165 +2,139 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>FreeSpace Toolkit</title>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeSpace App - Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link href="css/styles.css?v=2.0" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .login-card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: left;
+        }
+
+        .logo {
+            width: 80px;
+            height: auto;
+        }
+
+        .input-group-text {
+            background-color: #f4f4f4;
+            border: none;
+            border-right: 1px solid #ddd;
+            border-radius: 6px 0 0 6px;
+        }
+
+        .form-control-lg {
+            height: 50px;
+            border-radius: 0 6px 6px 0;
+            font-size: 1rem;
+        }
+
+        .btn-lg {
+            height: 50px;
+            font-size: 1.1rem;
+            border-radius: 6px;
+        }
+
+        .login-card h2 {
+            color: #333;
+        }
+
+        .login-card p {
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background-color: #2575fc;
+            border-color: #2575fc;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #1a5eb8;
+            border-color: #1a5eb8;
+        }
+
+        .text-muted {
+            font-size: 0.9rem;
+            color: #6c757d !important;
+        }
+
+    </style>
 </head>
 <body>
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-custom">
-    <a class="navbar-brand" href="#">Fressspace</a>
-    <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
-            data-target="#navbarNav" data-toggle="collapse" type="button">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-                <a class="nav-link active" href="index.html">Home</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="index.html">Scan Devices</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="device_assign.html">Assign IDs</a>
-            </li>
-        </ul>
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="login-card shadow-lg p-4">
+        <div class="text-center mb-4">
+<!--            <img src="logo.png" alt="FreeSpace Logo" class="logo">-->
+            <h2 class="fw-bold mt-3">FreeSpace App</h2>
+            <p class="text-muted">Access your account securely</p>
+        </div>
+        <form id="loginForm">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                    <input type="text" class="form-control form-control-lg" id="username" placeholder="Enter your username" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                    <input type="password" class="form-control form-control-lg" id="password" placeholder="Enter your password" required>
+                </div>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+            </div>
+            <p id="error-message" class="text-danger text-center mt-3" style="display: none;">
+                <i class="fas fa-exclamation-circle"></i> Invalid username or password!
+            </p>
+        </form>
     </div>
-</nav>
+</div>
 
-<section class="container-fluid mt-2">
-    <section class="row">
-        <!--QR Start-->
-        <div class="col-12">
-            <div class="d-flex justify-content-center">
-                <video height="200" id="video" style="display: none" width="300"></video>
-            </div>
-        </div>
-        <!--QR ENDS-->
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
-        <!--INPUTS Starts-->
-        <div class="col-12 bg-white sticky-top pb-2">
-            <div class="row justify-content-center">
-                <div class="col-12 col-md-5 col-lg-6 mt-2">
-                    <div class="input-group mb-3">
-                        <input class="form-control border-2" id="inp" placeholder="Device ID" type="text" value="1901-101-455">
-                        <button class="btn btn-danger" id="btnPaste" type="button"><i class="fas fa-paste"></i> P</button>
-                        <button class="btn btn-primary" id="btnCpy" type="button"><i class="fas fa-copy"></i> C</button>
-                    </div>
-                </div>
-                <div class="col-8 col-md-5 col-lg-4 mt-2">
-                    <div class="btn-group">
-                        <button class="btn btn-primary" id="search">Search</button>
-                        <button class="btn btn-danger" id="clear">Clear</button>
-                        <button class="btn btn-warning" id="qrStp">.....</button>
-                    </div>
-
-                </div>
-                <div class="col-4 col-md-2 col-lg-2 d-flex justify-content-start mt-2">
-                    <div id="inner-box">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!--INPUTS Ends-->
-
-        <!--Device Data-->
-        <div class="col-12">
-
-            <div class="accordion" id="accordionExample">
-
-                <!--First Accordion Start-->
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button aria-controls="collapseOne" aria-expanded="true" class="accordion-button"
-                                data-bs-target="#collapseOne" data-bs-toggle="collapse" type="button">
-                            Device Information
-                        </button>
-                    </h2>
-                    <div class="accordion-collapse collapse" data-bs-parent="#accordionExample"
-                         id="collapseOne">
-                        <div class="accordion-body">
-                            <div class="card main-card shadow">
-                                <div class="card-body" id="f-deviceData">
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--First Accordion END-->
-
-                <!--Second Accordion Start-->
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button aria-controls="collapseTwo" aria-expanded="false"
-                                class="accordion-button collapsed"
-                                data-bs-target="#collapseTwo" data-bs-toggle="collapse" type="button">
-                            Surrounding Data
-                        </button>
-                    </h2>
-                    <div class="accordion-collapse collapse show" data-bs-parent="#accordionExample"
-                         id="collapseTwo">
-                        <div class="accordion-body">
-                            <table class="table table-bordered">
-                                <tbody id="tb">
-
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <!--Second Accordion END-->
-
-                <!--Third Accordion Start-->
-                <div class="accordion-item">
-                    <h2 class="accordion-header">
-                        <button aria-controls="collapseThree" aria-expanded="false"
-                                class="accordion-button collapsed"
-                                data-bs-target="#collapseThree" data-bs-toggle="collapse" type="button">
-                            More Info
-                        </button>
-                    </h2>
-                    <div class="accordion-collapse collapse" data-bs-parent="#accordionExample"
-                         id="collapseThree">
-                        <div class="accordion-body">
-                            <div class="">
-                                <div class="device-info-card">
-                                    <div class="card-body">
-                                        <ol class="device-info-list" id="deviceData">
-
-                                        </ol>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--Third Accordion END-->
-
-            </div>
-        </div>
-    </section>
-</section>
-
-<!-- Footer Section -->
-<footer class="footer">
-    <p class="mb-0">
-        Developed by <a href="https://sanuv.uk" target="_blank">Sanu Vithanage</a> © 2024
-    </p>
-</footer>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function (e) { e.preventDefault();
 
 
-<script src="js/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://unpkg.com/@zxing/library@latest" type="text/javascript"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="js/my_script.js?v=1.4"></script>
+    // Get username and password values
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    // Check credentials
+    if (username === 'admin' && password === 'admin') {
+        // Set login status in sessionStorage
+        sessionStorage.setItem('isLoggedIn', 'true');
+
+        // Redirect to Page A
+        window.location.href = 'scan_devices.html';
+    } else {
+        // Show error message
+        document.getElementById('error-message').style.display = 'block';
+    }
+    });
+</script>
 </body>
 </html>
