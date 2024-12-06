@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Map Viewer with Clear Zoom and Smooth Pan</title>
+    <title>PDF Map Viewer with High-Quality Zoom and Pan</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -49,7 +49,7 @@
 </head>
 <body>
 <div class="container-fluid">
-    <h1 class="text-center my-4">PDF Map Viewer with Clear Zoom and Smooth Pan</h1>
+    <h1 class="text-center my-4">PDF Map Viewer with High-Quality Zoom and Smooth Pan</h1>
 
     <!-- PDF Upload -->
     <div class="mb-3 text-center">
@@ -101,41 +101,34 @@
             canvas.width = viewport.width;
             canvas.height = viewport.height;
 
-            // Clear canvas and apply panning offsets
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
             const renderCtx = {
                 canvasContext: ctx,
                 viewport: viewport,
             };
+
+            // Render the page at the current scale
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
             page.render(renderCtx);
         });
     };
 
-    // Apply transformations for zoom and pan
-    const applyTransformations = () => {
-        ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
-        ctx.translate(translateX, translateY); // Apply panning
-        renderPage(pageNum); // Re-render for clarity
-    };
-
-    // Zooming
+    // Apply zoom and re-render for clarity
     const zoomIn = () => {
         scale = Math.min(scale + 0.2, 5); // Max zoom level
-        applyTransformations();
+        renderPage(pageNum); // Re-render with updated scale
     };
 
     const zoomOut = () => {
         scale = Math.max(scale - 0.2, 0.5); // Min zoom level
-        applyTransformations();
+        renderPage(pageNum); // Re-render with updated scale
     };
 
     const resetZoom = () => {
         scale = 1;
         translateX = 0;
         translateY = 0;
-        applyTransformations();
+        renderPage(pageNum); // Reset to default scale and re-render
     };
 
     // Panning
@@ -157,8 +150,8 @@
         translateX = tempTranslateX + (x - startX);
         translateY = tempTranslateY + (y - startY);
 
-        // Apply transformations without re-rendering
-        canvas.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+        // Apply panning transformations
+        canvas.style.transform = `translate(${translateX}px, ${translateY}px)`;
     };
 
     const endPan = () => {
