@@ -16,9 +16,6 @@
             /*max-width: 900px;*/
         }
 
-        h1 {
-            font-size: 2.5rem;
-        }
 
         .form-control {
             border-radius: 10px;
@@ -96,8 +93,13 @@
     </div>
 </nav>
 
-<div class="container my-5">
+<div class="container">
     <form class="row g-4 shadow p-4 bg-white rounded shadow-card" id="taskForm">
+        <div>
+            <h1>
+                <i class="fas fa-tools text-primary"></i> Schedule Planner
+            </h1>
+        </div>
         <div class="col-md-4">
             <label class="form-label" for="numDevices">
                 <i class="fas fa-list-ol text-primary"></i> Number of ONS Devices
@@ -153,7 +155,8 @@
 </footer>
 
 <script src="js/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         // Set default values for Start Time and End Time
@@ -249,6 +252,6 @@
     });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
