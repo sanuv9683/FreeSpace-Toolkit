@@ -217,32 +217,32 @@
 
         let reportHTML = `
     <h3><i class="fas fa-clock"></i> Time Details</h3>
-    <p><i class="fas fa-stopwatch"></i> <strong>Total Time Available:</strong><br> ${totalMinutes} minutes (${(totalMinutes / 60).toFixed(2)} hours)</p>
-    <p><i class="fas fa-cut"></i> <strong>Total Interval Time Deducted:</strong><br> ${intervalTime || 0} minutes</p>
-    <p><i class="fas fa-tasks"></i> <strong>Effective Working Time:</strong><br> ${effectiveMinutes.toFixed(2)} minutes (${effectiveHours.toFixed(2)} hours)</p>
+    <p><i class="fas fa-stopwatch"></i> <strong>Total Time Available:</strong> ${(totalMinutes / 60).toFixed(2)} Hours</p>
+    <p><i class="fas fa-cut"></i> <strong>Interval Duration:</strong> ${intervalTime || 0} Minutes</p>
+    <p><i class="fas fa-tasks"></i> <strong>Working Hours:</strong> ${effectiveHours.toFixed(2)} Hours</p>
     <hr>
     <h3><i class="fas fa-cogs"></i> Work Details</h3>
 `;
 
         if (devicesPerHour) {
             reportHTML += `
-      <p><i class="fas fa-hourglass-half"></i> <strong>Devices Per Hour:</strong><br> ${devicesPerHour}</p>
-      <p><i class="fas fa-user-cog"></i> <strong>Devices Per Team Member Per Hour:</strong> <br>${devicesPerTeamMemberPerHour}</p>
+      <p><i class="fas fa-hourglass-half"></i> <strong>DPH for Team:</strong> ${devicesPerHour} Devices</p>
+      <p><i class="fas fa-user-cog"></i> <strong>DPH for Member:</strong> ${devicesPerTeamMemberPerHour} Devices</p>
   `;
         }
 
         if (devicesPer30Minutes) {
             reportHTML += `
-      <p><i class="fas fa-hourglass-start"></i> <strong>Devices Per 30 Minutes:</strong><br> ${devicesPer30Minutes}</p>
-      <p><i class="fas fa-user"></i> <strong>Devices Per Team Member Per 30 Minutes:</strong><br> ${devicesPerTeamMemberPer30Minutes}</p>
+      <p><i class="fas fa-hourglass-start"></i> <strong>DP 30 Mins:</strong> ${devicesPer30Minutes}</p>
+      <p><i class="fas fa-user"></i> <strong>DP 30 Mins Per Member :</strong> ${devicesPerTeamMemberPer30Minutes}</p>
   `;
         }
 
         reportHTML += `
     <hr>
     <h3><i class="fas fa-chart-pie"></i> Averages</h3>
-    <p><i class="fas fa-calculator"></i> <strong>Average Time Per Device (Team):</strong> <br>${averageTimePerDevice} minutes</p>
-    <p><i class="fas fa-user-clock"></i> <strong>Average Time Per Device (Per Team Member):</strong><br> ${averageTimePerDevicePerTeamMember} minutes</p>
+    <p><i class="fas fa-calculator"></i> <strong>Average Time PD (Team):</strong> ${averageTimePerDevice} Minutes</p>
+    <p><i class="fas fa-user-clock"></i> <strong>Average Time PD (Member):</strong> ${averageTimePerDevicePerTeamMember} Minutes</p>
 `;
 
         document.getElementById('output').innerHTML = reportHTML;
