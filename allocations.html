@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Device Installation Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            /*max-width: 900px;*/
+        }
+
+        h1 {
+            font-size: 2.5rem;
+        }
+
+        .form-control {
+            border-radius: 10px;
+        }
+
+        .btn {
+            border-radius: 20px;
+        }
+
+        .shadow-card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #output {
+            color: #155724;
+        }
+
+        #report {
+            margin-top: 30px;
+        }
+
+        #output {
+            color: #141719e6;
+            padding: 20px;
+            border-radius: 15px;
+            font-size: 1rem;
+            line-height: 1.8;
+            /*border-left: 5px solid #4caf50;*/
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        #output h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #0d6efdf5;
+        }
+
+        #output p {
+            margin: 0;
+        }
+
+        #output strong {
+            color: #2b342cd1;
+        }
+
+        #output i {
+            margin-right: 5px;
+        }
+    </style>
+
+</head>
+<body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <a class="navbar-brand" href="scan_devices.html">Fressspace</a>
+    <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+            data-target="#navbarNav" data-toggle="collapse" type="button">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link active" href="scan_devices.html">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="scan_devices.html">Scan</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="allocations.html">Time Allocation</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="device_assign.html">Assign IDs</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container my-5">
+    <form class="row g-4 shadow p-4 bg-white rounded shadow-card" id="taskForm">
+        <div class="col-md-4">
+            <label class="form-label" for="numDevices">
+                <i class="fas fa-list-ol text-primary"></i> Number of ONS Devices
+            </label>
+            <input class="form-control" id="numDevices" placeholder="Enter total devices" required type="number">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="startTime">
+                <i class="far fa-clock text-primary"></i> Start Time
+            </label>
+            <input class="form-control" id="startTime" required type="time">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="endTime">
+                <i class="far fa-clock text-primary"></i> Expected End Time
+            </label>
+            <input class="form-control" id="endTime" required type="time" value="19:00">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="teamMembers">
+                <i class="fas fa-users text-primary"></i> Number of Team Members
+            </label>
+            <input class="form-control" id="teamMembers" placeholder="Enter team members" required type="number"
+                   value="1">
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" for="intervalTime">
+                <i class="fas fa-coffee text-primary"></i> Interval Time (minutes)
+            </label>
+            <input class="form-control" id="intervalTime" placeholder="Enter interval time" required type="number">
+        </div>
+        <div class="col-12 text-center">
+            <button class="btn btn-primary btn-lg px-5" id="calculateBtn" type="button">
+                <i class="fas fa-calculator"></i> Calculate
+            </button>
+        </div>
+    </form>
+
+
+    <div class="mt-5" id="report">
+        <h3 class="text-center">
+            <i class="fas fa-chart-line text-success"></i> Summary Report
+        </h3>
+        <div class="mt-4" id="output"></div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Set default values for Start Time and End Time
+        const currentTime = new Date();
+        const currentHours = String(currentTime.getHours()).padStart(2, '0');
+        const currentMinutes = String(currentTime.getMinutes()).padStart(2, '0');
+        document.getElementById('startTime').value = `${currentHours}:${currentMinutes}`;
+    });
+
+    document.getElementById('calculateBtn').addEventListener('click', function () {
+        const numDevices = parseInt(document.getElementById('numDevices').value);
+        const startTime = document.getElementById('startTime').value;
+        const endTime = document.getElementById('endTime').value;
+        const teamMembers = parseInt(document.getElementById('teamMembers').value);
+        const intervalTime = parseInt(document.getElementById('intervalTime').value);
+
+        if (!numDevices || !startTime || !endTime || !teamMembers) {
+            alert('Please fill out all fields correctly.');
+            return;
+        }
+
+        // Calculate Total Time Available
+        const start = new Date(`1970-01-01T${startTime}:00`);
+        const end = new Date(`1970-01-01T${endTime}:00`);
+        const totalMinutes = (end - start) / (1000 * 60);
+
+        if (totalMinutes <= 0) {
+            alert('End time must be later than start time.');
+            return;
+        }
+
+        // Deduct Interval Time
+        const effectiveMinutes = totalMinutes - (intervalTime || 0);
+        const effectiveHours = effectiveMinutes / 60;
+
+        if (effectiveMinutes <= 0) {
+            alert('Interval time is too high; no effective working time left.');
+            return;
+        }
+
+        let devicesPerHour = null;
+        let devicesPerTeamMemberPerHour = null;
+        if (effectiveMinutes >= 60) {
+            devicesPerHour = Math.ceil(numDevices / effectiveHours);
+            devicesPerTeamMemberPerHour = Math.floor(devicesPerHour / teamMembers);
+        }
+
+        let devicesPer30Minutes = null;
+        let devicesPerTeamMemberPer30Minutes = null;
+        if (effectiveMinutes < 60) {
+            devicesPer30Minutes = Math.ceil((numDevices / effectiveMinutes) * 30);
+            devicesPerTeamMemberPer30Minutes = Math.ceil(devicesPer30Minutes / teamMembers);
+        }
+
+        const averageTimePerDevice = (effectiveMinutes / numDevices).toFixed(2);
+        const averageTimePerDevicePerTeamMember = (
+            effectiveMinutes /
+            (numDevices * teamMembers)
+        ).toFixed(2);
+
+
+        let reportHTML = `
+    <h3><i class="fas fa-clock"></i> Time Details</h3>
+    <p><i class="fas fa-stopwatch"></i> <strong>Total Time Available:</strong> ${totalMinutes} minutes (${(totalMinutes / 60).toFixed(2)} hours)</p>
+    <p><i class="fas fa-cut"></i> <strong>Total Interval Time Deducted:</strong> ${intervalTime || 0} minutes</p>
+    <p><i class="fas fa-tasks"></i> <strong>Effective Working Time:</strong> ${effectiveMinutes.toFixed(2)} minutes (${effectiveHours.toFixed(2)} hours)</p>
+    <hr>
+    <h3><i class="fas fa-cogs"></i> Work Details</h3>
+`;
+
+        if (devicesPerHour) {
+            reportHTML += `
+      <p><i class="fas fa-hourglass-half"></i> <strong>Devices Per Hour:</strong> ${devicesPerHour}</p>
+      <p><i class="fas fa-user-cog"></i> <strong>Devices Per Team Member Per Hour:</strong> ${devicesPerTeamMemberPerHour}</p>
+  `;
+        }
+
+        if (devicesPer30Minutes) {
+            reportHTML += `
+      <p><i class="fas fa-hourglass-start"></i> <strong>Devices Per 30 Minutes:</strong> ${devicesPer30Minutes}</p>
+      <p><i class="fas fa-user"></i> <strong>Devices Per Team Member Per 30 Minutes:</strong> ${devicesPerTeamMemberPer30Minutes}</p>
+  `;
+        }
+
+        reportHTML += `
+    <hr>
+    <h3><i class="fas fa-chart-pie"></i> Averages</h3>
+    <p><i class="fas fa-calculator"></i> <strong>Average Time Per Device (Team):</strong> ${averageTimePerDevice} minutes</p>
+    <p><i class="fas fa-user-clock"></i> <strong>Average Time Per Device (Per Team Member):</strong> ${averageTimePerDevicePerTeamMember} minutes</p>
+`;
+
+        document.getElementById('output').innerHTML = reportHTML;
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
