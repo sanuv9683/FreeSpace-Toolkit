@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDF Map Viewer with Clear Zoom and Smooth Pan</title>
+    <title>PDF Map Viewer with Smooth Zoom and Pan</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -19,7 +19,7 @@
             height: 90vh;
             background: #ddd;
             overflow: hidden;
-            touch-action: none; /* Prevent default browser panning behavior */
+            touch-action: none; /* Prevent default browser panning */
         }
 
         canvas {
@@ -27,6 +27,12 @@
             position: absolute;
             top: 0;
             left: 0;
+            transform-origin: top left; /* Maintain accurate zoom */
+            cursor: grab;
+        }
+
+        canvas:active {
+            cursor: grabbing;
         }
 
         .controls {
@@ -44,7 +50,7 @@
 </head>
 <body>
 <div class="container-fluid">
-    <h1 class="text-center my-4">PDF Map Viewer with Clear Zoom and Smooth Pan</h1>
+    <h1 class="text-center my-4">PDF Map Viewer with Smooth Zoom and Pan</h1>
 
     <!-- PDF Upload -->
     <div class="mb-3 text-center">
@@ -96,38 +102,38 @@
             canvas.width = viewport.width;
             canvas.height = viewport.height;
 
-            // Clear canvas
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Apply panning and zooming transformations
-            ctx.setTransform(scale, 0, 0, scale, translateX, translateY);
-
-            // Render the page
             const renderCtx = {
                 canvasContext: ctx,
                 viewport: viewport,
             };
-            page.render(renderCtx);
+            page.render(renderCtx).promise.then(() => {
+                // After rendering, reset transformation for smooth zoom and pan
+                updateTransform();
+            });
         });
+    };
+
+    // Update the canvas transformation for zoom and pan
+    const updateTransform = () => {
+        canvas.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
     };
 
     // Zooming
     const zoomIn = () => {
         scale = Math.min(scale + 0.2, 5); // Max zoom level
-        renderPage(pageNum);
+        updateTransform();
     };
 
     const zoomOut = () => {
         scale = Math.max(scale - 0.2, 0.5); // Min zoom level
-        renderPage(pageNum);
+        updateTransform();
     };
 
     const resetZoom = () => {
         scale = 1;
         translateX = 0;
         translateY = 0;
-        renderPage(pageNum);
+        updateTransform();
     };
 
     // Panning
@@ -145,11 +151,11 @@
         const x = e.clientX || e.touches[0].clientX;
         const y = e.clientY || e.touches[0].clientY;
 
-        // Calculate new translation values
+        // Update translation values based on drag
         translateX = tempTranslateX + (x - startX);
         translateY = tempTranslateY + (y - startY);
 
-        renderPage(pageNum); // Re-render with new translations
+        updateTransform();
     };
 
     const endPan = () => {
