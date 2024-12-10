@@ -2,9 +2,150 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
 </head>
 <body>
+<div class="container mt-3">
+    <h1 class="text-center">Task Manager</h1>
+    <input type="file" id="excelUpload" accept=".xlsx, .xls" class="form-control mb-3" />
+    <ul class="nav nav-tabs" id="sheetTabs" role="tablist"></ul>
+    <div class="tab-content" id="sheetContents"></div>
+    <button id="saveDownloadButton" class="btn btn-primary w-100 mt-3" disabled>Save Changes & Download</button>
+</div>
 
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+    let originalWorkbook = null; // Store the uploaded workbook
+    let originalFileName = ''; // Store the original file name
+
+    // Upload and load the Excel file
+    document.getElementById('excelUpload').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        originalFileName = file.name; // Capture the original file name
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = new Uint8Array(e.target.result);
+            originalWorkbook = XLSX.read(data, { type: 'array' }); // Load the workbook
+            loadWorkbook(originalWorkbook);
+            document.getElementById('saveDownloadButton').disabled = false; // Enable the button
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+    // Load workbook into the app as tabs and tables
+    function loadWorkbook(workbook) {
+        const tabs = document.getElementById('sheetTabs');
+        const contents = document.getElementById('sheetContents');
+        tabs.innerHTML = '';
+        contents.innerHTML = '';
+
+        workbook.SheetNames.forEach((sheetName, index) => {
+            const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: '' });
+            if (sheetData.length === 0) return; // Skip empty sheets
+
+            // Create a tab
+            const tab = document.createElement('li');
+            tab.className = 'nav-item';
+            tab.innerHTML = `
+            <button class="nav-link ${index === 0 ? 'active' : ''}" id="tab-${index}" data-bs-toggle="tab" data-bs-target="#content-${index}" type="button" role="tab">
+                ${sheetName}
+            </button>`;
+            tabs.appendChild(tab);
+
+            // Create tab content
+            const content = document.createElement('div');
+            content.className = `tab-pane fade ${index === 0 ? 'show active' : ''}`;
+            content.id = `content-${index}`;
+            const table = renderSheet(sheetData, sheetName);
+            content.appendChild(table);
+            contents.appendChild(content);
+        });
+    }
+
+    // Render editable table for a sheet
+    function renderSheet(data, sheetName) {
+        const table = document.createElement('table');
+        table.className = 'table table-bordered table-striped';
+        table.setAttribute('data-sheet-name', sheetName); // Link the table to the sheet name
+        const thead = table.createTHead();
+        const tbody = table.createTBody();
+
+        // Create table headers
+        const headerRow = thead.insertRow();
+        Object.keys(data[0]).forEach(key => {
+            const cell = headerRow.insertCell();
+            cell.textContent = key;
+        });
+
+        // Populate table rows
+        data.forEach(row => {
+            const tableRow = tbody.insertRow();
+            Object.values(row).forEach(value => {
+                const cell = tableRow.insertCell();
+                cell.contentEditable = true; // Enable editing
+                cell.textContent = value;
+            });
+        });
+
+        return table;
+    }
+
+    // Save changes to the workbook and download it
+    function saveAndDownload() {
+        if (!originalWorkbook) {
+            alert('Please upload an Excel file first.');
+            return;
+        }
+
+        const tables = document.querySelectorAll('.tab-pane table');
+
+        tables.forEach((table) => {
+            const sheetName = table.getAttribute('data-sheet-name');
+            if (!sheetName || !originalWorkbook.Sheets[sheetName]) return;
+
+            // Collect updated data from the table
+            const data = [];
+            const headers = Array.from(table.tHead.rows[0].cells).map(cell => cell.textContent);
+            data.push(headers);
+
+            Array.from(table.tBodies[0].rows).forEach(row => {
+                const rowData = Array.from(row.cells).map(cell => cell.textContent.trim());
+                data.push(rowData);
+            });
+
+            // Convert the updated table data to a worksheet
+            const updatedWorksheet = XLSX.utils.aoa_to_sheet(data);
+
+            // Replace the existing sheet with the updated worksheet
+            originalWorkbook.Sheets[sheetName] = updatedWorksheet;
+        });
+
+        // Write the updated workbook
+        const workbookBlob = XLSX.write(originalWorkbook, { bookType: 'xlsx', type: 'binary' });
+        const buffer = new ArrayBuffer(workbookBlob.length);
+        const view = new Uint8Array(buffer);
+        for (let i = 0; i < workbookBlob.length; i++) {
+            view[i] = workbookBlob.charCodeAt(i) & 0xFF;
+        }
+        const blob = new Blob([buffer], { type: 'application/octet-stream' });
+
+        // Trigger download with the original file name
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = originalFileName; // Use the original file name
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // Add event listener for the combined button
+    document.getElementById('saveDownloadButton').addEventListener('click', saveAndDownload);
+
+</script>
 </body>
 </html>
