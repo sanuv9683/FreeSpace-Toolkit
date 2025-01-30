@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QR Code Scanner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+    #camera-feed {
+      width: 100%;
+      max-width: 500px;
+      margin: 20px auto;
+      border: 2px solid #ccc;
+    }
+    #qr-result {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>QR Code Scanner</h1>
+  <select id="camera-select"></select>
+  <video id="camera-feed" autoplay playsinline></video>
+  <div id="qr-result">Scan a QR Code</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
+  <script>
+    const video = document.getElementById('camera-feed');
+    const cameraSelect = document.getElementById('camera-select');
+    const qrResult = document.getElementById('qr-result');
+
+    let mediaStream = null;
+
+    // Function to get available cameras
+    async function getCameras() {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cameras = devices.filter(device => device.kind === 'videoinput');
+
+      // Clear existing options
+      cameraSelect.innerHTML = '';
+
+      // Add options for each camera
+      cameras.forEach((camera, index) => {
+        const option = document.createElement('option');
+        option.value = camera.deviceId;
+        option.text = camera.label || `Camera ${index + 1}`;
+        cameraSelect.appendChild(option);
+      });
+
+      // If no cameras are found, prompt the user
+      if (cameras.length === 0) {
+        alert('No cameras found.');
+      }
+    }
+
+    // Function to start the camera
+    async function startCamera(deviceId) {
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+      }
+
+      const constraints = {
+        video: {
+          deviceId: deviceId ? { exact: deviceId } : undefined,
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      };
+
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = mediaStream;
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        alert('Failed to access camera. Please ensure permissions are granted.');
+      }
+    }
+
+    // Function to scan QR code
+    function scanQRCode() {
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+      if (code) {
+        qrResult.textContent = `QR Code: ${code.data}`;
+      } else {
+        qrResult.textContent = 'No QR Code detected';
+      }
+      requestAnimationFrame(scanQRCode);
+    }
+
+    // Event listener for camera selection
+    cameraSelect.addEventListener('change', () => {
+      startCamera(cameraSelect.value);
+    });
+
+    // Initialize the app
+    async function init() {
+      // Request camera access first
+      await navigator.mediaDevices.getUserMedia({ video: true });
+      await getCameras();
+      await startCamera();
+      scanQRCode();
+    }
+
+    init();
+  </script>
+</body>
+</html>
