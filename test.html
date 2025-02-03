@@ -19,6 +19,10 @@
     #camera-select {
       margin-top: 10px;
     }
+    #clear-button {
+      display: none;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
@@ -27,22 +31,27 @@
   <div id="scanner-container">
     <video id="video" autoplay></video>
     <select id="camera-select" class="form-select"></select>
+    <button id="clear-button" class="btn btn-primary w-100">Scan Again</button>
   </div>
   <div id="result" class="mt-3 text-center"></div>
 </div>
 
+<!-- Include jsQR library -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     const video = document.getElementById('video');
     const cameraSelect = document.getElementById('camera-select');
     const resultDiv = document.getElementById('result');
+    const clearButton = document.getElementById('clear-button');
     let currentStream = null;
     let selectedCameraId = localStorage.getItem('selectedCameraId');
 
     // Function to stop the current video stream
     function stopMediaTracks(stream) {
-      stream.getTracks().forEach(track => track.stop());
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
     }
 
     // Function to start the video stream
@@ -64,6 +73,7 @@
         return stream;
       } catch (error) {
         console.error('Error accessing camera:', error);
+        resultDiv.innerHTML = 'Error accessing camera. Please ensure permissions are granted.';
       }
     }
 
@@ -83,15 +93,26 @@
       await startVideoStream(selectedDeviceId);
     });
 
-    // Initialize camera selection and start scanning
-    async function initialize() {
-      await populateCameraSelect();
-      if (selectedCameraId) {
-        await startVideoStream(selectedCameraId);
-      } else {
-        await startVideoStream();
-      }
+    // Event listener for the "Clear" button
+    clearButton.addEventListener('click', async () => {
+      resultDiv.innerHTML = '';
+      clearButton.style.display = 'none';
+      await startVideoStream(selectedCameraId);
       scanQRCode();
+    });
+
+    // Function to stop the camera and hide the video
+    function stopCamera() {
+      if (currentStream) {
+        stopMediaTracks(currentStream);
+        video.srcObject = null;
+      }
+    }
+
+    // Function to play a sound
+    function playSound() {
+      const audio = new Audio('success.mp3'); // Add a success sound file
+      audio.play();
     }
 
     // Function to scan QR code
@@ -111,6 +132,10 @@
 
           if (code) {
             resultDiv.innerHTML = `QR Code Detected: <strong>${code.data}</strong>`;
+            stopCamera();
+            playSound();
+            clearButton.style.display = 'block';
+            return; // Stop scanning after successful detection
           } else {
             resultDiv.innerHTML = 'Scanning...';
           }
@@ -118,6 +143,17 @@
         requestAnimationFrame(tick);
       }
       tick();
+    }
+
+    // Initialize camera selection and start scanning
+    async function initialize() {
+      await populateCameraSelect();
+      if (selectedCameraId) {
+        await startVideoStream(selectedCameraId);
+      } else {
+        await startVideoStream();
+      }
+      scanQRCode();
     }
 
     initialize();
