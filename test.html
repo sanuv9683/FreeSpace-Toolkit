@@ -16,12 +16,11 @@
       width: 100%;
       border: 2px solid #ccc;
     }
-    #camera-select {
+    #camera-select, #start-button, #clear-button {
       margin-top: 10px;
     }
     #clear-button {
       display: none;
-      margin-top: 10px;
     }
   </style>
 </head>
@@ -29,8 +28,9 @@
 <div class="container mt-5">
   <h1 class="text-center">QR Code Scanner</h1>
   <div id="scanner-container">
-    <video id="video" autoplay></video>
+    <video id="video" muted></video>
     <select id="camera-select" class="form-select"></select>
+    <button id="start-button" class="btn btn-success w-100">Start Camera</button>
     <button id="clear-button" class="btn btn-primary w-100">Scan Again</button>
   </div>
   <div id="result" class="mt-3 text-center"></div>
@@ -38,12 +38,13 @@
 
 <!-- Include jsQR library -->
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-<script>
+<script >
   document.addEventListener('DOMContentLoaded', function () {
     const video = document.getElementById('video');
     const cameraSelect = document.getElementById('camera-select');
-    const resultDiv = document.getElementById('result');
+    const startButton = document.getElementById('start-button');
     const clearButton = document.getElementById('clear-button');
+    const resultDiv = document.getElementById('result');
     let currentStream = null;
     let selectedCameraId = localStorage.getItem('selectedCameraId');
 
@@ -70,6 +71,7 @@
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         currentStream = stream;
         video.srcObject = stream;
+        video.play(); // Ensure the video plays
         return stream;
       } catch (error) {
         console.error('Error accessing camera:', error);
@@ -93,12 +95,19 @@
       await startVideoStream(selectedDeviceId);
     });
 
+    // Event listener for the "Start Camera" button
+    startButton.addEventListener('click', async () => {
+      await initialize();
+      startButton.style.display = 'none';
+      clearButton.style.display = 'block';
+    });
+
     // Event listener for the "Clear" button
     clearButton.addEventListener('click', async () => {
       resultDiv.innerHTML = '';
       clearButton.style.display = 'none';
-      await startVideoStream(selectedCameraId);
-      scanQRCode();
+      startButton.style.display = 'block';
+      stopCamera();
     });
 
     // Function to stop the camera and hide the video
@@ -155,8 +164,6 @@
       }
       scanQRCode();
     }
-
-    initialize();
   });
 </script>
 </body>
