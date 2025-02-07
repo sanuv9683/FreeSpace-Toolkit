@@ -105,28 +105,63 @@
 
     // Load available cameras
     async function loadCameras() {
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(device => device.kind === "videoinput");
-      cameraSelect.innerHTML = videoDevices
-              .map(device => `<option value="${device.deviceId}" ${device.deviceId === selectedCameraId ? "selected" : ""}>${device.label || `Camera ${cameraSelect.length + 1}`}</option>`)
-              .join("");
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === "videoinput");
+
+        // Clear existing options
+        cameraSelect.innerHTML = "";
+
+        // Add all available cameras to the dropdown
+        videoDevices.forEach((device, index) => {
+          const option = document.createElement("option");
+          option.value = device.deviceId;
+          option.text = device.label || `Camera ${index + 1}`;
+          if (device.deviceId === selectedCameraId) {
+            option.selected = true;
+          }
+          cameraSelect.appendChild(option);
+        });
+
+        // If no camera is selected, default to the first one
+        if (!selectedCameraId && videoDevices.length > 0) {
+          selectedCameraId = videoDevices[0].deviceId;
+          localStorage.setItem("selectedCameraId", selectedCameraId);
+        }
+      } catch (error) {
+        console.error("Error loading cameras:", error);
+      }
     }
 
     // Start the selected camera
     async function startCamera() {
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
-      const constraints = {
-        video: {
-          deviceId: selectedCameraId ? { exact: selectedCameraId } : undefined,
-          facingMode: "environment"
+      try {
+        // Stop the previous stream if it exists
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
         }
-      };
-      stream = await navigator.mediaDevices.getUserMedia(constraints);
-      video.srcObject = stream;
-      await video.play();
-      requestAnimationFrame(scanQR);
+
+        // Get the selected camera ID
+        selectedCameraId = cameraSelect.value;
+        localStorage.setItem("selectedCameraId", selectedCameraId);
+
+        // Set constraints for the selected camera
+        const constraints = {
+          video: {
+            deviceId: { exact: selectedCameraId }
+          }
+        };
+
+        // Start the new stream
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = stream;
+        await video.play();
+
+        // Start scanning for QR codes
+        requestAnimationFrame(scanQR);
+      } catch (error) {
+        console.error("Error starting camera:", error);
+      }
     }
 
     // Stop the camera
@@ -161,8 +196,6 @@
 
     // Event listeners
     cameraSelect.addEventListener("change", () => {
-      selectedCameraId = cameraSelect.value;
-      localStorage.setItem("selectedCameraId", selectedCameraId);
       startCamera();
     });
 
