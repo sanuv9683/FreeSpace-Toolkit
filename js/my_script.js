@@ -14,57 +14,11 @@ let codeReader;
 let classList = ['fa-database', 'fa-user', 'fa-id-badge', 'fa-link', 'fa-wifi', 'fa-clock', 'fa-play', 'fa-sync-alt', 'fa-calendar-alt', 'fa-microchip', 'fa-network-wired', 'fa-sim-card', 'fa-tags', 'fa-barcode', 'fa-memory', 'fa-signal', 'fa-info-circle', 'fa-file-alt', 'fa-calendar-check', 'fa-link', 'fa-fingerprint', 'fa-battery-full'];
 let array = [5, 7, 8, 18, 19];
 
-// if (sessionStorage.getItem('isLoggedIn') !== 'true') {
-//     // If not logged in, redirect to login page
-//     window.location.href = 'index.html';
-// }
-//
-// // Logout functionality
-// document.getElementById('logout').addEventListener('click', function () {
-//     // Clear login status from sessionStorage
-//     sessionStorage.removeItem('isLoggedIn');
-// });
-
 
 window.addEventListener('load', function () {
     hideLoader();
     codeReader = new ZXing.BrowserQRCodeReader();
     camSetting();
-    // codeReader.getVideoInputDevices()
-    //     .then((videoInputDevices) => {
-    //         const sourceSelect = document.getElementById('sourceSelect')
-    //         selectedDeviceId = videoInputDevices[0].deviceId
-    //         if (videoInputDevices.length >= 1) {
-    //             videoInputDevices.forEach((element) => {
-    //                 const sourceOption = document.createElement('option')
-    //                 sourceOption.text = element.label
-    //                 sourceOption.value = element.deviceId
-    //                 sourceSelect.appendChild(sourceOption)
-    //             })
-    //
-    //             sourceSelect.onchange = () => {
-    //                 selectedDeviceId = sourceSelect.value;
-    //             };
-    //
-    //             const sourceSelectPanel = document.getElementById('sourceSelectPanel')
-    //             sourceSelectPanel.style.display = 'block'
-    //         }
-    //
-    //         //start button
-    //         document.getElementById('startButton').addEventListener('click', () => {
-    //             decodeOnce(codeReader, selectedDeviceId);
-    //         })
-    //
-    //         //reset button
-    //         document.getElementById('resetButton').addEventListener('click', () => {
-    //             codeReader.reset()
-    //             document.getElementById('result').textContent = '';
-    //         })
-    //
-    //     })
-    //     .catch((err) => {
-    //         console.error(err)
-    //     })
 })
 
 document.getElementById('btnPaste').addEventListener('click', async () => {
