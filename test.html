@@ -2,107 +2,258 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QR Code Scanner</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+  <title>FreeSpace Toolkit</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="css/styles.css?v=2.0" rel="stylesheet">
+<!--  <style>-->
+<!--    body {-->
+<!--      font-family: Arial, sans-serif;-->
+<!--      background-color: #f4f4f9;-->
+<!--      margin: 0;-->
+<!--      padding: 0;-->
+<!--      display: flex;-->
+<!--      justify-content: center;-->
+<!--      align-items: center;-->
+<!--      height: 100vh;-->
+<!--    }-->
 
-    .container {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      max-width: 500px;
-      width: 100%;
-    }
+<!--    .container {-->
+<!--      background: white;-->
+<!--      padding: 20px;-->
+<!--      border-radius: 10px;-->
+<!--      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);-->
+<!--      max-width: 500px;-->
+<!--      width: 100%;-->
+<!--    }-->
 
-    h1 {
-      text-align: center;
-      color: #333;
-    }
+<!--    h1 {-->
+<!--      text-align: center;-->
+<!--      color: #333;-->
+<!--    }-->
 
-    .camera-select, .result, .controls {
-      margin-bottom: 20px;
-    }
+<!--    .camera-select, .result, .controls {-->
+<!--      margin-bottom: 20px;-->
+<!--    }-->
 
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
+<!--    label {-->
+<!--      display: block;-->
+<!--      margin-bottom: 5px;-->
+<!--      font-weight: bold;-->
+<!--    }-->
 
-    select, textarea, button {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
-    }
+<!--    select, textarea, button {-->
+<!--      width: 100%;-->
+<!--      padding: 10px;-->
+<!--      margin-bottom: 10px;-->
+<!--      border: 1px solid #ccc;-->
+<!--      border-radius: 5px;-->
+<!--      font-size: 16px;-->
+<!--    }-->
 
-    textarea {
-      resize: none;
-      height: 100px;
-    }
+<!--    textarea {-->
+<!--      resize: none;-->
+<!--      height: 100px;-->
+<!--    }-->
 
-    button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
+<!--    button {-->
+<!--      background-color: #007bff;-->
+<!--      color: white;-->
+<!--      border: none;-->
+<!--      cursor: pointer;-->
+<!--    }-->
 
-    button:hover {
-      background-color: #0056b3;
-    }
+<!--    button:hover {-->
+<!--      background-color: #0056b3;-->
+<!--    }-->
 
-    .scanner-container {
-      position: relative;
-      width: 100%;
-      height: 300px;
-      border: 2px dashed #ccc;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 20px;
-    }
+<!--    .scanner-container {-->
+<!--      position: relative;-->
+<!--      width: 100%;-->
+<!--      height: 300px;-->
+<!--      border: 2px dashed #ccc;-->
+<!--      display: flex;-->
+<!--      justify-content: center;-->
+<!--      align-items: center;-->
+<!--      margin-bottom: 20px;-->
+<!--    }-->
 
-    video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+<!--    video {-->
+<!--      width: 100%;-->
+<!--      height: 100%;-->
+<!--      object-fit: cover;-->
+<!--    }-->
 
-    @keyframes scan-success {
-      0% { border-color: green; }
-      50% { border-color: transparent; }
-      100% { border-color: green; }
-    }
+<!--    @keyframes scan-success {-->
+<!--      0% { border-color: green; }-->
+<!--      50% { border-color: transparent; }-->
+<!--      100% { border-color: green; }-->
+<!--    }-->
 
-    .scanner-container.scan-success {
-      animation: scan-success 1s ease-in-out;
-    }
-  </style>
+<!--    .scanner-container.scan-success {-->
+<!--      animation: scan-success 1s ease-in-out;-->
+<!--    }-->
+<!--  </style>-->
 </head>
+
 <body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <a class="navbar-brand" href="scan_devices.html">Fressspace</a>
+  <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+          data-target="#navbarNav" data-toggle="collapse" type="button">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item">
+        <a class="nav-link active" href="scan_devices.html">Home</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="scan_devices.html">Scan</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="device_assign.html">Assign IDs</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="config_link.html">Config Link</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="allocations.html">Time Allocation</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<section class="container-fluid mt-2">
+  <section class="row">
+    <!--QR Start-->
+    <div class="col-12">
+      <div class="d-flex justify-content-center">
+        <div class="camera-select">
+          <label for="camera-select">Select Camera:</label>
+          <select id="camera-select"></select>
+        </div>
+        <video height="200"  muted playsinline id="qr-video"  width="300"></video>
+        <canvas id="qr-canvas" hidden style="display: none"></canvas>
+      </div>
+    </div>
+    <!--QR ENDS-->
+
+    <!--INPUTS Starts-->
+    <div class="col-12 bg-white sticky-top pb-2">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-5 col-lg-6 mt-2">
+          <div class="input-group mb-3">
+            <input class="form-control border-2" id="inp" placeholder="Device ID" type="text" value="1901-101-455">
+            <button class="btn btn-danger" id="btnPaste" type="button"><i class="fas fa-paste"></i> P</button>
+            <button class="btn btn-primary" id="btnCpy" type="button"><i class="fas fa-copy"></i> C</button>
+          </div>
+        </div>
+        <div class="col-8 col-md-5 col-lg-4 mt-2">
+          <div class="btn-group">
+            <button class="btn btn-primary" id="search">Search</button>
+            <button class="btn btn-danger" id="clear">Clear</button>
+            <button class="btn btn-warning" id="qrStp">.....</button>
+          </div>
+
+        </div>
+        <div class="col-4 col-md-2 col-lg-2 d-flex justify-content-start mt-2">
+          <div id="inner-box">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--INPUTS Ends-->
+
+    <!--Device Data-->
+    <div class="col-12">
+
+      <div class="accordion" id="accordionExample">
+
+        <!--First Accordion Start-->
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button aria-controls="collapseOne" aria-expanded="true" class="accordion-button"
+                    data-bs-target="#collapseOne" data-bs-toggle="collapse" type="button">
+              Device Information
+            </button>
+          </h2>
+          <div class="accordion-collapse collapse" data-bs-parent="#accordionExample"
+               id="collapseOne">
+            <div class="accordion-body">
+              <div class="card main-card shadow">
+                <div class="card-body" id="f-deviceData">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--First Accordion END-->
+
+        <!--Second Accordion Start-->
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button aria-controls="collapseTwo" aria-expanded="false"
+                    class="accordion-button collapsed"
+                    data-bs-target="#collapseTwo" data-bs-toggle="collapse" type="button">
+              Surrounding Data
+            </button>
+          </h2>
+          <div class="accordion-collapse collapse show" data-bs-parent="#accordionExample"
+               id="collapseTwo">
+            <div class="accordion-body">
+              <table class="table table-bordered">
+                <tbody id="tb">
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!--Second Accordion END-->
+
+        <!--Third Accordion Start-->
+        <div class="accordion-item">
+          <h2 class="accordion-header">
+            <button aria-controls="collapseThree" aria-expanded="false"
+                    class="accordion-button collapsed"
+                    data-bs-target="#collapseThree" data-bs-toggle="collapse" type="button">
+              More Info
+            </button>
+          </h2>
+          <div class="accordion-collapse collapse" data-bs-parent="#accordionExample"
+               id="collapseThree">
+            <div class="accordion-body">
+              <div class="">
+                <div class="device-info-card">
+                  <div class="card-body">
+                    <ol class="device-info-list" id="deviceData">
+
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--Third Accordion END-->
+
+      </div>
+    </div>
+  </section>
+</section>
+
+
 <div class="container">
   <h1>QR Code Scanner</h1>
-  <div class="camera-select">
-    <label for="camera-select">Select Camera:</label>
-    <select id="camera-select"></select>
-  </div>
+
   <div class="scanner-container">
-    <video id="qr-video" muted playsinline></video>
-    <canvas id="qr-canvas" hidden style="display: none"></canvas>
+
   </div>
   <div class="result">
     <label for="result-text">Scanned Result:</label>
@@ -114,9 +265,23 @@
     <button id="clear-result">Clear Result</button>
   </div>
 </div>
-<audio id="scan-sound" src="audio/success-sound.mp3"></audio>
-<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
 
+<!-- Footer Section -->
+<footer class="footer">
+  <p class="mb-0">
+    Developed by <a href="https://sanuv.uk" target="_blank">Sanu Vithanage</a> © 2024
+  </p>
+</footer>
+
+
+<audio id="scan-sound" src="audio/success-sound.mp3"></audio>
+<script src="js/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/@zxing/library@latest" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
@@ -251,7 +416,6 @@
     }
   });
 </script>
-
 
 <script>
   const Toast = Swal.mixin({
