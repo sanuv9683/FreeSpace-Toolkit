@@ -50,7 +50,7 @@
             <select class="form-control" id="camera-select"></select>
           </div>
           <div class="col-12">
-            <video height="200"  muted playsinline id="qr-video"  width="300"></video>
+            <video height="200"  muted playsinline id="qr-video" style="display:none;"  width="300"></video>
           </div>
         </div>
         <canvas id="qr-canvas" hidden style="display: none"></canvas>
@@ -220,6 +220,7 @@
         selectedCameraId = videoDevices[0].deviceId;
         localStorage.setItem("selectedCameraId", selectedCameraId);
       }
+      await startCamera();
     } catch (err) {
       console.error("Error loading cameras:", err);
       alert("Unable to access cameras. Please ensure you have granted permission.");
@@ -228,6 +229,7 @@
 
   // Start the selected camera
   async function startCamera() {
+    fadeInQr();
     if (currentStream) {
       currentStream.getTracks().forEach((track) => track.stop());
     }
@@ -262,8 +264,8 @@
 
         const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-        if (code) {
+        console.log(code);
+        if (code!=null && code.data!='') {
           getDeviceID(code.data);
           scanSound.play();
           fadeOutQr();
@@ -294,10 +296,6 @@
   });
 
 
-  // Initialize
-  if (selectedCameraId) {
-    startCamera();
-  }
 
 
 //old code
@@ -648,17 +646,16 @@
   }
 
   function camSetting() {
-    loadCameras();
     let rp = localStorage.getItem('cam4');
     if (rp == null) {
       camOnOff = true;
       localStorage.setItem('cam4', 'true');
-      startCamera();
+      loadCameras();
       updateButton(true);
     } else {
       let rp = localStorage.getItem('cam4');
       if (rp === 'true') {
-        startCamera();
+        loadCameras();
         camOnOff = true;
         updateButton(true);
       } else if (rp === 'false') {
