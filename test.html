@@ -267,7 +267,7 @@
           const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
           const code = jsQR(imageData.data, imageData.width, imageData.height);
 
-          if (code.data!=="") {
+          if (code) {
             getDeviceID(code.data);
             resultText.value = code.data;
             scanSound.play();
@@ -304,9 +304,9 @@
       startCamera();
     });
 
-    startCameraButton.addEventListener("click", startCamera);
-    stopCameraButton.addEventListener("click", stopCamera);
-    clearResultButton.addEventListener("click", clearResult);
+    // startCameraButton.addEventListener("click", startCamera);
+    // stopCameraButton.addEventListener("click", stopCamera);
+    // clearResultButton.addEventListener("click", clearResult);
 
     // Initialize
     loadCameras();
