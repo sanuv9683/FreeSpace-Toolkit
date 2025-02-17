@@ -182,141 +182,125 @@
 <script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const video = document.getElementById("qr-video");
-    const canvas = document.getElementById("qr-canvas");
-    const resultText = document.getElementById("result-text");
-    const cameraSelect = document.getElementById("camera-select");
-    const startCameraButton = document.getElementById("start-camera");
-    const stopCameraButton = document.getElementById("stop-camera");
-    const clearResultButton = document.getElementById("clear-result");
-    const scanSound = document.getElementById("scan-sound");
 
-    let currentStream = null;
-    let selectedCameraId = localStorage.getItem("selectedCameraId");
+  const video = document.getElementById("qr-video");
+  const canvas = document.getElementById("qr-canvas");
+  const cameraSelect = document.getElementById("camera-select");
+  const scanSound = document.getElementById("scan-sound");
 
-    // Load all available cameras
-    async function loadCameras() {
-      try {
-        // Request permission to access cameras
-        await navigator.mediaDevices.getUserMedia({ video: true });
+  let currentStream = null;
+  let selectedCameraId = localStorage.getItem("selectedCameraId");
 
-        // Enumerate all devices
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter((device) => device.kind === "videoinput");
+  // Load all available cameras
+  async function loadCameras() {
+    try {
+      // Request permission to access cameras
+      await navigator.mediaDevices.getUserMedia({ video: true });
 
-        // Clear existing options
-        cameraSelect.innerHTML = "";
+      // Enumerate all devices
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter((device) => device.kind === "videoinput");
 
-        // Add each camera as an option
-        videoDevices.forEach((device, index) => {
-          const option = document.createElement("option");
-          option.value = device.deviceId;
-          option.text = device.label || `Camera ${index + 1}`;
-          if (device.deviceId === selectedCameraId) {
-            option.selected = true;
-          }
-          cameraSelect.appendChild(option);
-        });
+      // Clear existing options
+      cameraSelect.innerHTML = "";
 
-        // If no camera is selected, default to the first one
-        if (!selectedCameraId && videoDevices.length > 0) {
-          selectedCameraId = videoDevices[0].deviceId;
-          localStorage.setItem("selectedCameraId", selectedCameraId);
+      // Add each camera as an option
+      videoDevices.forEach((device, index) => {
+        const option = document.createElement("option");
+        option.value = device.deviceId;
+        option.text = device.label || `Camera ${index + 1}`;
+        if (device.deviceId === selectedCameraId) {
+          option.selected = true;
         }
-      } catch (err) {
-        console.error("Error loading cameras:", err);
-        alert("Unable to access cameras. Please ensure you have granted permission.");
+        cameraSelect.appendChild(option);
+      });
+
+      // If no camera is selected, default to the first one
+      if (!selectedCameraId && videoDevices.length > 0) {
+        selectedCameraId = videoDevices[0].deviceId;
+        localStorage.setItem("selectedCameraId", selectedCameraId);
       }
+    } catch (err) {
+      console.error("Error loading cameras:", err);
+      alert("Unable to access cameras. Please ensure you have granted permission.");
+    }
+  }
+
+  // Start the selected camera
+  async function startCamera() {
+    if (currentStream) {
+      currentStream.getTracks().forEach((track) => track.stop());
     }
 
-    // Start the selected camera
-    async function startCamera() {
-      if (currentStream) {
-        currentStream.getTracks().forEach((track) => track.stop());
-      }
+    const constraints = {
+      video: {
+        deviceId: selectedCameraId ? { exact: selectedCameraId } : undefined,
+      },
+    };
 
-      const constraints = {
-        video: {
-          deviceId: selectedCameraId ? { exact: selectedCameraId } : undefined,
-        },
-      };
-
-      try {
-        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
-        video.srcObject = currentStream;
-        video.play();
-        scanQRCode();
-      } catch (err) {
-        console.error("Error accessing camera:", err);
-        alert("Failed to start the selected camera. Please try another one.");
-      }
+    try {
+      currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+      video.srcObject = currentStream;
+      video.play();
+      scanQRCode();
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+      alert("Failed to start the selected camera. Please try another one.");
     }
+  }
 
-    // Scan QR code
-    function scanQRCode() {
-      const context = canvas.getContext("2d");
+  // Scan QR code
+  function scanQRCode() {
+    const context = canvas.getContext("2d");
 
-      function tick() {
-        if (video.readyState === video.HAVE_ENOUGH_DATA) {
-          canvas.hidden = false;
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    function tick() {
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.hidden = false;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-          const code = jsQR(imageData.data, imageData.width, imageData.height);
+        const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
 
-          if (code) {
-            getDeviceID(code.data);
-            resultText.value = code.data;
-            scanSound.play();
-            stopCamera();
-            // Add animation here (e.g., change border color or show a checkmark)
-            document.querySelector(".scanner-container").style.borderColor = "green";
-          }
+        if (code) {
+          getDeviceID(code.data);
+          scanSound.play();
+          fadeOutQr();
+          stopCamera();
+          // Add animation here (e.g., change border color or show a checkmark)
         }
-        requestAnimationFrame(tick);
       }
-
-      tick();
+      requestAnimationFrame(tick);
     }
 
-    // Stop the camera
-    function stopCamera() {
-      if (currentStream) {
-        currentStream.getTracks().forEach((track) => track.stop());
-        currentStream = null;
-        video.srcObject = null;
-      }
+    tick();
+  }
+
+  // Stop the camera
+  function stopCamera() {
+    if (currentStream) {
+      currentStream.getTracks().forEach((track) => track.stop());
+      currentStream = null;
+      video.srcObject = null;
     }
+  }
 
-    // Clear the result
-    function clearResult() {
-      resultText.value = "";
-      document.querySelector(".scanner-container").style.borderColor = "#ccc";
-    }
-
-    // Event listeners
-    cameraSelect.addEventListener("change", () => {
-      selectedCameraId = cameraSelect.value;
-      localStorage.setItem("selectedCameraId", selectedCameraId);
-      startCamera();
-    });
-
-    // startCameraButton.addEventListener("click", startCamera);
-    // stopCameraButton.addEventListener("click", stopCamera);
-    // clearResultButton.addEventListener("click", clearResult);
-
-    // Initialize
-    loadCameras();
-    if (selectedCameraId) {
-      startCamera();
-    }
+  // Event listeners
+  cameraSelect.addEventListener("change", () => {
+    selectedCameraId = cameraSelect.value;
+    localStorage.setItem("selectedCameraId", selectedCameraId);
+    startCamera();
   });
-</script>
 
-<script>
+
+  // Initialize
+  if (selectedCameraId) {
+    startCamera();
+  }
+
+
+//old code
   const Toast = Swal.mixin({
     toast: true,
     position: "bottom-center",
@@ -329,14 +313,12 @@
     }
   });
   let camOnOff = true;
-  let codeReader;
   let classList = ['fa-database', 'fa-user', 'fa-id-badge', 'fa-link', 'fa-wifi', 'fa-clock', 'fa-play', 'fa-sync-alt', 'fa-calendar-alt', 'fa-microchip', 'fa-network-wired', 'fa-sim-card', 'fa-tags', 'fa-barcode', 'fa-memory', 'fa-signal', 'fa-info-circle', 'fa-file-alt', 'fa-calendar-check', 'fa-link', 'fa-fingerprint', 'fa-battery-full'];
   let array = [5, 7, 8, 18, 19];
 
 
   window.addEventListener('load', function () {
     hideLoader();
-    codeReader = new ZXing.BrowserQRCodeReader();
     camSetting();
   })
 
@@ -612,11 +594,11 @@
   }
 
   function fadeOutQr() {
-    $("#video").css('display', 'none');
+    $("#qr-video").css('display', 'none');
   }
 
   function fadeInQr() {
-    $("#video").css('display', 'block');
+    $("#qr-video").css('display', 'block');
   }
 
   function clearAll() {
@@ -659,35 +641,24 @@
         $('#inp').val(formatDeviceId(decodedID));
         copyToClipboard();
         searchData();
-        codeReader.reset();
+        stopCamera();
         fadeOutQr();
       }
     });
   }
 
-  function decodeOnce(codeReader, selectedDeviceId) {
-    fadeInQr();
-
-    codeReader.decodeFromInputVideoDevice(selectedDeviceId, 'video').then((result) => {
-      //print the result
-      getDeviceID(result.text);
-
-    }).catch((err) => {
-      console.error(err);
-    })
-  }
-
   function camSetting() {
+    loadCameras();
     let rp = localStorage.getItem('cam4');
     if (rp == null) {
       camOnOff = true;
       localStorage.setItem('cam4', 'true');
-      decodeOnce(codeReader, 0);
+      startCamera();
       updateButton(true);
     } else {
       let rp = localStorage.getItem('cam4');
       if (rp === 'true') {
-        decodeOnce(codeReader, 0);
+        startCamera();
         camOnOff = true;
         updateButton(true);
       } else if (rp === 'false') {
