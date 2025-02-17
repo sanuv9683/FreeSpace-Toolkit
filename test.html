@@ -50,7 +50,7 @@
             <select class="form-control" id="camera-select"></select>
           </div>
           <div class="col-12">
-            <video height="200"  muted playsinline id="qr-video" style="display:none;"  width="300"></video>
+            <video   muted playsinline id="qr-video" style="display:none;"  width="100%"></video>
           </div>
         </div>
         <canvas id="qr-canvas" hidden style="display: none"></canvas>
@@ -264,7 +264,6 @@
 
         const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         const code = jsQR(imageData.data, imageData.width, imageData.height);
-        console.log(code);
         if (code!=null && code.data!='') {
           getDeviceID(code.data);
           scanSound.play();
@@ -275,7 +274,6 @@
       }
       requestAnimationFrame(tick);
     }
-
     tick();
   }
 
@@ -592,10 +590,12 @@
   }
 
   function fadeOutQr() {
+    $("#camera-select").css('display', 'none');
     $("#qr-video").css('display', 'none');
   }
 
   function fadeInQr() {
+    $("#camera-select").css('display', 'block');
     $("#qr-video").css('display', 'block');
   }
 
