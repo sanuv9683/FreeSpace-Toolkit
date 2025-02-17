@@ -45,7 +45,7 @@
     <!--QR Start-->
     <div class="col-12">
       <div class="d-flex justify-content-center">
-        <div class="row">
+        <div class="row justify-content-center">
           <div class="col-12">
             <select class="form-control" id="camera-select"></select>
           </div>
@@ -53,8 +53,6 @@
             <video height="200"  muted playsinline id="qr-video"  width="300"></video>
           </div>
         </div>
-
-
         <canvas id="qr-canvas" hidden style="display: none"></canvas>
       </div>
     </div>
@@ -166,23 +164,6 @@
 </section>
 
 
-<div class="container">
-  <h1>QR Code Scanner</h1>
-
-  <div class="scanner-container">
-
-  </div>
-  <div class="result">
-    <label for="result-text">Scanned Result:</label>
-    <textarea id="result-text" readonly></textarea>
-  </div>
-  <div class="controls">
-    <button id="start-camera">Start Camera</button>
-    <button id="stop-camera">Stop Camera</button>
-    <button id="clear-result">Clear Result</button>
-  </div>
-</div>
-
 <!-- Footer Section -->
 <footer class="footer">
   <p class="mb-0">
@@ -213,7 +194,7 @@
 
     let currentStream = null;
     let selectedCameraId = localStorage.getItem("selectedCameraId");
-    loadCameras();
+
     // Load all available cameras
     async function loadCameras() {
       try {
@@ -286,7 +267,8 @@
           const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
           const code = jsQR(imageData.data, imageData.width, imageData.height);
 
-          if (code) {
+          if (code.data!=="") {
+            getDeviceID(code.data);
             resultText.value = code.data;
             scanSound.play();
             stopCamera();
