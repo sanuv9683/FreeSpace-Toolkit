@@ -350,13 +350,13 @@
 
   $("#qrStp").click(function () {
     if (camOnOff === true) {
-      codeReader.reset();
+      stopCamera();
       fadeOutQr();
       camOnOff = false;
       setCam('false');
     } else {
       fadeInQr();
-      decodeOnce(codeReader, 0);
+      startCamera();
       setCam('true');
       camOnOff = true;
     }
@@ -365,7 +365,7 @@
 
   $("#clear").click(function () {
     clearAll();
-    codeReader.reset();
+   stopCamera();
     camSetting();
   });
 
