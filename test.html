@@ -265,7 +265,7 @@
 
         const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
         const code = jsQR(imageData.data, imageData.width, imageData.height);
-        if (code!=null && code.data!='') {
+        if (code!=null && code.data!='' && code.data.includes("http://q.afreespace.com")) {
           getDeviceID(code.data);
           scanSound.play();
           fadeOutQr();
