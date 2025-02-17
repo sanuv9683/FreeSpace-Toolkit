@@ -213,7 +213,7 @@
 
     let currentStream = null;
     let selectedCameraId = localStorage.getItem("selectedCameraId");
-
+    loadCameras();
     // Load all available cameras
     async function loadCameras() {
       try {
