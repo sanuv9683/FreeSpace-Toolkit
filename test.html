@@ -298,6 +298,7 @@
     selectedCameraId = cameraSelect.value;
     localStorage.setItem("selectedCameraId", selectedCameraId);
     startCamera();
+    lensMenu.style.display = 'none';
   });
 
 
@@ -703,10 +704,6 @@
     return value.slice(0, 12);
   }
 
-
-</script>
-
-<script >
   // Toggle Lens Selection Menu
   const floatingButton = document.getElementById('floatingButton');
   const lensMenu = document.getElementById('lensMenu');
@@ -719,13 +716,6 @@
     }
   });
 
-  // Handle Lens Selection
-  const lensSelect = document.getElementById('lensSelect');
-  lensSelect.addEventListener('change', (event) => {
-    const selectedLens = event.target.value;
-    alert(`Selected Lens: ${selectedLens}`);
-    lensMenu.style.display = 'none'; // Hide menu after selection
-  });
 </script>
 </body>
 </html>
