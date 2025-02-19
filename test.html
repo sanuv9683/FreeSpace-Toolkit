@@ -8,56 +8,6 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <link href="css/styles.css?v=2.0" rel="stylesheet">
-  <style>
-    /* Custom CSS for floating button */
-    .floating-select {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1000;
-    }
-
-    .select-button {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-    }
-
-    /* Custom dropdown */
-    .custom-dropdown {
-      display: none;
-      position: absolute;
-      bottom: 60px;
-      right: 0;
-      background-color: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      width: 200px;
-      z-index: 1000;
-    }
-
-    .custom-dropdown .dropdown-item {
-      padding: 10px 20px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    .custom-dropdown .dropdown-item:hover {
-      background-color: #f8f9fa;
-    }
-
-    /* Hide the native select element */
-    #cameraLensSelect {
-      display: none;
-    }
-  </style>
 </head>
 
 <body>
@@ -213,26 +163,6 @@
     </div>
   </section>
 </section>
-
-<div class="floating-select">
-  <!-- Floating Button with Camera Icon -->
-  <button class="select-button btn btn-primary" type="button" id="selectButton">
-    <i class="fas fa-camera"></i>
-  </button>
-  <!-- Custom Dropdown -->
-  <div class="custom-dropdown" id="customDropdown">
-    <div class="dropdown-item" data-value="wide">Wide Lens</div>
-    <div class="dropdown-item" data-value="ultrawide">Ultra-Wide Lens</div>
-    <div class="dropdown-item" data-value="telephoto">Telephoto Lens</div>
-  </div>
-  <!-- Native Select Element (hidden) -->
-  <select id="cameraLensSelect">
-    <option value="wide">Wide Lens</option>
-    <option value="ultrawide">Ultra-Wide Lens</option>
-    <option value="telephoto">Telephoto Lens</option>
-  </select>
-</div>
-
 
 <!-- Footer Section -->
 <footer class="footer">
@@ -769,41 +699,5 @@
 
 </script>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const selectButton = document.getElementById('selectButton');
-    const customDropdown = document.getElementById('customDropdown');
-    const cameraLensSelect = document.getElementById('cameraLensSelect');
-
-    // Toggle custom dropdown visibility
-    selectButton.addEventListener('click', function() {
-      customDropdown.style.display = customDropdown.style.display === 'block' ? 'none' : 'block';
-    });
-
-    // Handle custom dropdown item clicks
-    customDropdown.querySelectorAll('.dropdown-item').forEach(item => {
-      item.addEventListener('click', function() {
-        const selectedValue = this.getAttribute('data-value');
-        const selectedText = this.textContent;
-
-        // Update the native select element
-        cameraLensSelect.value = selectedValue;
-
-        // Show the selected value (or use it in your logic)
-        alert(`Selected Lens: ${selectedText}`);
-
-        // Hide the custom dropdown
-        customDropdown.style.display = 'none';
-      });
-    });
-
-    // Close the custom dropdown if clicked outside
-    document.addEventListener('click', function(event) {
-      if (!selectButton.contains(event.target) && !customDropdown.contains(event.target)) {
-        customDropdown.style.display = 'none';
-      }
-    });
-  });
-</script>
 </body>
 </html>
