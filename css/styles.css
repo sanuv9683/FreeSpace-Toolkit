@@ -335,6 +335,7 @@
 /*Floating Button*/
 /* Floating Button */
 .floating-button {
+    z-index: 11;
     position: fixed;
     bottom: 20px;
     right: 20px;
