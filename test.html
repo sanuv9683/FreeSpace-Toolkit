@@ -51,7 +51,21 @@
             <video height="200"  muted playsinline id="qr-video" style="display:none;"  width="300"></video>
           </div>
           <div class="col-12 d-flex justify-content-center">
-            <select style="width: 270px;display: none" class="form-control" id="camera-select"></select>
+            <!-- Floating Button -->
+            <div class="floating-button" id="floatingButton">
+              <i class="fas fa-camera"></i>
+            </div>
+
+            <!-- Lens Selection Menu -->
+            <div class="lens-menu" id="lensMenu">
+              <select class="form-select" id="camera-select">
+                <option value="wide">Wide Lens</option>
+                <option value="ultrawide">Ultra-Wide Lens</option>
+                <option value="telephoto">Telephoto Lens</option>
+                <option value="macro">Macro Lens</option>
+              </select>
+            </div>
+<!--            <select style="width: 270px;display: none" class="form-control" id="camera-select"></select>-->
           </div>
         </div>
         <canvas id="qr-canvas" hidden style="display: none"></canvas>
@@ -699,5 +713,26 @@
 
 </script>
 
+<script >
+  // Toggle Lens Selection Menu
+  const floatingButton = document.getElementById('floatingButton');
+  const lensMenu = document.getElementById('lensMenu');
+
+  floatingButton.addEventListener('click', () => {
+    if (lensMenu.style.display === 'block') {
+      lensMenu.style.display = 'none';
+    } else {
+      lensMenu.style.display = 'block';
+    }
+  });
+
+  // Handle Lens Selection
+  const lensSelect = document.getElementById('lensSelect');
+  lensSelect.addEventListener('change', (event) => {
+    const selectedLens = event.target.value;
+    alert(`Selected Lens: ${selectedLens}`);
+    lensMenu.style.display = 'none'; // Hide menu after selection
+  });
+</script>
 </body>
 </html>
