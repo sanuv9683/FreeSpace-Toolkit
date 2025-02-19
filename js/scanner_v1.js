@@ -1,3 +1,16 @@
+const video = document.getElementById("qr-video");
+const canvas = document.getElementById("qr-canvas");
+const cameraSelect = document.getElementById("camera-select");
+const scanSound = document.getElementById("scan-sound");
+
+let currentStream = null;
+let selectedCameraId = localStorage.getItem("selectedCameraId");
+
+// Toggle Lens Selection Menu
+const floatingButton = document.getElementById('floatingButton');
+const lensMenu = document.getElementById('lensMenu');
+
+//old code
 const Toast = Swal.mixin({
     toast: true,
     position: "bottom-center",
@@ -10,61 +23,117 @@ const Toast = Swal.mixin({
     }
 });
 let camOnOff = true;
-let codeReader;
 let classList = ['fa-database', 'fa-user', 'fa-id-badge', 'fa-link', 'fa-wifi', 'fa-clock', 'fa-play', 'fa-sync-alt', 'fa-calendar-alt', 'fa-microchip', 'fa-network-wired', 'fa-sim-card', 'fa-tags', 'fa-barcode', 'fa-memory', 'fa-signal', 'fa-info-circle', 'fa-file-alt', 'fa-calendar-check', 'fa-link', 'fa-fingerprint', 'fa-battery-full'];
 let array = [5, 7, 8, 18, 19];
 
-// if (sessionStorage.getItem('isLoggedIn') !== 'true') {
-//     // If not logged in, redirect to login page
-//     window.location.href = 'index.html';
-// }
-//
-// // Logout functionality
-// document.getElementById('logout').addEventListener('click', function () {
-//     // Clear login status from sessionStorage
-//     sessionStorage.removeItem('isLoggedIn');
-// });
 
+
+// Load all available cameras
+async function loadCameras() {
+    try {
+        // Request permission to access cameras
+        await navigator.mediaDevices.getUserMedia({ video: true });
+
+        // Enumerate all devices
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter((device) => device.kind === "videoinput");
+
+        // Clear existing options
+        cameraSelect.innerHTML = "";
+
+        // Add each camera as an option
+        videoDevices.forEach((device, index) => {
+            const option = document.createElement("option");
+            option.value = device.deviceId;
+            option.text = device.label || `Camera ${index + 1}`;
+            if (device.deviceId === selectedCameraId) {
+                option.selected = true;
+            }
+            cameraSelect.appendChild(option);
+        });
+
+        // If no camera is selected, default to the first one
+        if (!selectedCameraId && videoDevices.length > 0) {
+            selectedCameraId = videoDevices[0].deviceId;
+            localStorage.setItem("selectedCameraId", selectedCameraId);
+        }
+        await startCamera();
+    } catch (err) {
+        console.error("Error loading cameras:", err);
+        alert("Unable to access cameras. Please ensure you have granted permission.");
+    }
+}
+
+// Start the selected camera
+async function startCamera() {
+    fadeInQr();
+    if (currentStream) {
+        currentStream.getTracks().forEach((track) => track.stop());
+    }
+
+    const constraints = {
+        video: {
+            deviceId: selectedCameraId ? { exact: selectedCameraId } : undefined,
+        },
+    };
+
+    try {
+        currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+        video.srcObject = currentStream;
+        video.play();
+        scanQRCode();
+    } catch (err) {
+        console.error("Error accessing camera:", err);
+        alert("Failed to start the selected camera. Please try another one.");
+    }
+}
+
+// Scan QR code
+function scanQRCode() {
+    const context = canvas.getContext("2d");
+
+    function tick() {
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            canvas.hidden = false;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            if (code!=null && code.data!='' && code.data.includes("http://q.afreespace.com")) {
+                getDeviceID(code.data);
+                scanSound.play();
+                fadeOutQr();
+                stopCamera();
+                // Add animation here (e.g., change border color or show a checkmark)
+            }
+        }
+        requestAnimationFrame(tick);
+    }
+    tick();
+}
+
+// Stop the camera
+function stopCamera() {
+    if (currentStream) {
+        currentStream.getTracks().forEach((track) => track.stop());
+        currentStream = null;
+        video.srcObject = null;
+    }
+}
+
+// Event listeners
+cameraSelect.addEventListener("change", () => {
+    selectedCameraId = cameraSelect.value;
+    localStorage.setItem("selectedCameraId", selectedCameraId);
+    startCamera();
+    lensMenu.style.display = 'none';
+});
 
 window.addEventListener('load', function () {
     hideLoader();
-    codeReader = new ZXing.BrowserQRCodeReader();
     camSetting();
-    // codeReader.getVideoInputDevices()
-    //     .then((videoInputDevices) => {
-    //         const sourceSelect = document.getElementById('sourceSelect')
-    //         selectedDeviceId = videoInputDevices[0].deviceId
-    //         if (videoInputDevices.length >= 1) {
-    //             videoInputDevices.forEach((element) => {
-    //                 const sourceOption = document.createElement('option')
-    //                 sourceOption.text = element.label
-    //                 sourceOption.value = element.deviceId
-    //                 sourceSelect.appendChild(sourceOption)
-    //             })
-    //
-    //             sourceSelect.onchange = () => {
-    //                 selectedDeviceId = sourceSelect.value;
-    //             };
-    //
-    //             const sourceSelectPanel = document.getElementById('sourceSelectPanel')
-    //             sourceSelectPanel.style.display = 'block'
-    //         }
-    //
-    //         //start button
-    //         document.getElementById('startButton').addEventListener('click', () => {
-    //             decodeOnce(codeReader, selectedDeviceId);
-    //         })
-    //
-    //         //reset button
-    //         document.getElementById('resetButton').addEventListener('click', () => {
-    //             codeReader.reset()
-    //             document.getElementById('result').textContent = '';
-    //         })
-    //
-    //     })
-    //     .catch((err) => {
-    //         console.error(err)
-    //     })
 })
 
 document.getElementById('btnPaste').addEventListener('click', async () => {
@@ -95,13 +164,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 $("#qrStp").click(function () {
     if (camOnOff === true) {
-        codeReader.reset();
+        stopCamera();
         fadeOutQr();
         camOnOff = false;
         setCam('false');
     } else {
         fadeInQr();
-        decodeOnce(codeReader, 0);
+        // startCamera();
+        loadCameras();
         setCam('true');
         camOnOff = true;
     }
@@ -110,7 +180,7 @@ $("#qrStp").click(function () {
 
 $("#clear").click(function () {
     clearAll();
-    codeReader.reset();
+    stopCamera();
     camSetting();
 });
 
@@ -339,11 +409,15 @@ function searchData() {
 }
 
 function fadeOutQr() {
-    $("#video").css('display', 'none');
+    $("#camera-select").css('display', 'none');
+    $("#floatingButton").css('display', 'none');
+    $("#qr-video").css('display', 'none');
 }
 
 function fadeInQr() {
-    $("#video").css('display', 'block');
+    $("#camera-select").css('display', 'block');
+    $("#floatingButton").css('display', 'flex');
+    $("#qr-video").css('display', 'block');
 }
 
 function clearAll() {
@@ -386,22 +460,10 @@ function getDeviceID(decodedText) {
             $('#inp').val(formatDeviceId(decodedID));
             copyToClipboard();
             searchData();
-            codeReader.reset();
+            stopCamera();
             fadeOutQr();
         }
     });
-}
-
-function decodeOnce(codeReader, selectedDeviceId) {
-    fadeInQr();
-
-    codeReader.decodeFromInputVideoDevice(selectedDeviceId, 'video').then((result) => {
-        //print the result
-        getDeviceID(result.text);
-
-    }).catch((err) => {
-        console.error(err);
-    })
 }
 
 function camSetting() {
@@ -409,12 +471,12 @@ function camSetting() {
     if (rp == null) {
         camOnOff = true;
         localStorage.setItem('cam4', 'true');
-        decodeOnce(codeReader, 0);
+        loadCameras();
         updateButton(true);
     } else {
         let rp = localStorage.getItem('cam4');
         if (rp === 'true') {
-            decodeOnce(codeReader, 0);
+            loadCameras();
             camOnOff = true;
             updateButton(true);
         } else if (rp === 'false') {
@@ -456,3 +518,10 @@ function formatDeviceId(value) {
     return value.slice(0, 12);
 }
 
+floatingButton.addEventListener('click', () => {
+    if (lensMenu.style.display === 'block') {
+        lensMenu.style.display = 'none';
+    } else {
+        lensMenu.style.display = 'block';
+    }
+});
