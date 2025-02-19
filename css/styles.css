@@ -362,6 +362,7 @@
 
 /* Lens Selection Menu */
 .lens-menu {
+    z-index: 11;
     position: fixed;
     bottom: 90px;
     right: 20px;
