@@ -44,7 +44,7 @@
     </div>
 </nav>
 
-<div class="container mt-3">
+<div class="container mt-3 pb-5">
     <h1 class="text-center">Task Manager with Search</h1>
     <input type="file" id="excelUpload" accept=".xlsx, .xls" class="form-control mb-3" />
     <input type="text" id="searchBar" class="form-control mb-3" placeholder="Search for data..." disabled />
@@ -82,7 +82,6 @@
     </p>
 </footer>
 
-<script src="js/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
@@ -193,7 +192,7 @@
         // Add a slight delay to ensure the active tab content is fully rendered
         setTimeout(() => {
             updateColumnDropdown();
-        }, 1000); // Delay of 50ms
+        }, 500); // Delay of 50ms
     });
 
     // Function to update the column dropdown based on the active tab
@@ -257,8 +256,6 @@
         });
     });
 
-
-
     // Save changes to the workbook and download it
     function saveAndDownload() {
         if (!originalWorkbook) {
@@ -272,13 +269,19 @@
             const sheetName = table.getAttribute('data-sheet-name');
             if (!sheetName || !originalWorkbook.Sheets[sheetName]) return;
 
-            // Collect updated data from the table
+            // Collect updated data from the table without the Exclude column
             const data = [];
-            const headers = Array.from(table.tHead.rows[0].cells).map(cell => cell.textContent);
+            // Skip the first cell (Exclude column) for headers
+            const headers = Array.from(table.tHead.rows[0].cells)
+                .slice(1)
+                .map(cell => cell.textContent);
             data.push(headers);
 
             Array.from(table.tBodies[0].rows).forEach(row => {
-                const rowData = Array.from(row.cells).map(cell => cell.textContent.trim());
+                // Skip the first cell (Exclude checkbox) for each row
+                const rowData = Array.from(row.cells)
+                    .slice(1)
+                    .map(cell => cell.textContent.trim());
                 data.push(rowData);
             });
 
@@ -308,6 +311,7 @@
         document.body.removeChild(a);
     }
 
+
     // Add event listener for the combined button
     document.getElementById('saveDownloadButton').addEventListener('click', saveAndDownload);
 
@@ -327,10 +331,6 @@
             row.style.display = matches ? '' : 'none'; // Hide rows that don't match
         });
     });
-
-
-
-
 
 </script>
 </body>

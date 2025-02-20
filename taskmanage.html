@@ -269,13 +269,19 @@
             const sheetName = table.getAttribute('data-sheet-name');
             if (!sheetName || !originalWorkbook.Sheets[sheetName]) return;
 
-            // Collect updated data from the table
+            // Collect updated data from the table without the Exclude column
             const data = [];
-            const headers = Array.from(table.tHead.rows[0].cells).map(cell => cell.textContent);
+            // Skip the first cell (Exclude column) for headers
+            const headers = Array.from(table.tHead.rows[0].cells)
+                .slice(1)
+                .map(cell => cell.textContent);
             data.push(headers);
 
             Array.from(table.tBodies[0].rows).forEach(row => {
-                const rowData = Array.from(row.cells).map(cell => cell.textContent.trim());
+                // Skip the first cell (Exclude checkbox) for each row
+                const rowData = Array.from(row.cells)
+                    .slice(1)
+                    .map(cell => cell.textContent.trim());
                 data.push(rowData);
             });
 
@@ -304,6 +310,7 @@
         a.click();
         document.body.removeChild(a);
     }
+
 
     // Add event listener for the combined button
     document.getElementById('saveDownloadButton').addEventListener('click', saveAndDownload);
