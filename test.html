@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Device ID Requester</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Optional: adjust spinner size */
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+            border-width: 0.1em;
+        }
+    </style>
+</head>
+<body>
+<div class="container my-4">
+    <h1 class="mb-3">Device ID Requester</h1>
+    <p>
+        Paste or type your device IDs below. Each ID must be 10 digits formatted as
+        <code>2203-106-900</code> (4 digits, dash, 3 digits, dash, 3 digits). If more than 10 digits are entered on a line, the extra digits will move to a new line.
+    </p>
+    <div class="form-group">
+        <textarea id="deviceIds" class="form-control" rows="5" placeholder="Enter device IDs (one per line)"></textarea>
+    </div>
+    <button id="sendRequests" class="btn btn-primary mb-3">Send Requests</button>
+    <button id="clearAll" class="btn btn-secondary mb-3 ml-2">Clear All</button>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>Device ID</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody id="resultsTable">
+        <!-- Results will be appended here -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Bootstrap JS, Popper.js, and jQuery (if needed) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu5vMUBJPrjS86cEkrr6F1Y2u1wqYNEltE8+BcNfy1lu4l+0" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4Ag6/8NmHBh4c80ObE3xgKc4/hj47E8r6S9CT3Kmd4LdZJ21l2eK" crossorigin="anonymous"></script>
+
+<script>
+    // Real-time validation and formatting for the textarea
+    const deviceIdsTextArea = document.getElementById('deviceIds');
+    deviceIdsTextArea.addEventListener('input', function(e) {
+        let originalValue = deviceIdsTextArea.value;
+        let lines = originalValue.split(/\n/);
+        let newLines = [];
+
+        lines.forEach(line => {
+            // Remove all non-digit characters
+            let digits = line.replace(/\D/g, '');
+            if(digits.length === 0) return; // Skip empty lines
+            // Break the digits into chunks of 10
+            for(let i = 0; i < digits.length; i += 10) {
+                let chunk = digits.substring(i, i + 10);
+                newLines.push(formatChunk(chunk));
+            }
+        });
+
+        let newValue = newLines.join('\n');
+        if(newValue !== originalValue) {
+            deviceIdsTextArea.value = newValue;
+        }
+    });
+
+    // Formats a chunk of up to 10 digits as XXXX-XXX-XXX
+    function formatChunk(chunk) {
+        if(chunk.length <= 4) {
+            return chunk;
+        } else if(chunk.length <= 7) {
+            return chunk.substring(0,4) + '-' + chunk.substring(4);
+        } else {
+            return chunk.substring(0,4) + '-' + chunk.substring(4,7) + '-' + chunk.substring(7);
+        }
+    }
+
+    // When the button is clicked, send a request for each formatted ID.
+    document.getElementById('sendRequests').addEventListener('click', function() {
+        const textArea = document.getElementById('deviceIds');
+        // Split by newline and remove any empty lines
+        const ids = textArea.value.split('\n').map(id => id.trim()).filter(id => id !== '');
+        const resultsTable = document.getElementById('resultsTable');
+        resultsTable.innerHTML = ''; // Clear previous results
+
+        ids.forEach(id => {
+            // Create a new table row for this device id
+            const tr = document.createElement('tr');
+            const tdId = document.createElement('td');
+            tdId.textContent = id;
+            const tdStatus = document.createElement('td');
+            // Show a loading spinner while request is in progress
+            tdStatus.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>';
+            tr.appendChild(tdId);
+            tr.appendChild(tdStatus);
+            resultsTable.appendChild(tr);
+
+            // Build the URL by replacing the id parameter
+            const url = 'https://tools.afreespace.com/bless/debug.php?id=' + encodeURIComponent(id);
+
+            // Send the request using Fetch
+            fetch(url)
+                .then(response => response.text())
+                .then(text => {
+                    let c=searchData(text);
+                    // If the response equals "true", mark as successful; otherwise, mark as failed.
+                    if (c.c>= 3) {
+                        tdStatus.innerHTML = `<span class="text-success">&#10004; ${c.r}</span>`; // Tick mark
+                    } else {
+                        tdStatus.innerHTML = `<span class="text-danger">&#10008; ${c.r}</span>`; // Cross mark
+                    }
+                })
+                .catch(error => {
+                    // On error, show a cross mark
+                    tdStatus.innerHTML = '<span class="text-danger">&#10008;</span>';
+                    console.error('Error fetching for ID ' + id + ':', error);
+                });
+        });
+    });
+
+    function searchData(response) {
+                let resEdited = convertToBritishTime(response);
+                let formatedResponse = resEdited
+                    .replace(/<hr\/>/g, '<br/>')
+                    .replace(/<hr>/g, '<br/>')
+                    .replace(/"/g, '')
+                    .replace(/,/g, '')
+                    .replace(/\n/g, '')
+                    .replace(/}/g, '')
+                    .replace(/{/g, '')
+                    .replace(/_/g, ' ')
+                    .replace(/\\/g, '');
+
+                let res = formatedResponse.split('<br/>');
+                let count = 0;
+                let resLast="";
+                for (let i = 0; i < res.length; i++) {
+                    if (i < 21) {
+                    } else {
+                        if (i === 21) {
+
+                        } else {
+                            if (res[i] !== "") {
+                                count++;
+                                resLast=res[i];
+                                let row = `<tr>
+                                <td>${count}</td>
+                                <td>${res[i]}</td>
+                            </tr>`;
+                                $("#tb").prepend(row);
+                            }
+                        }
+
+                    }
+                }
+                return {c:count,r:resLast};
+
+    }
+
+    function convertToBritishTime(inputString) {
+        const regex = /_time":\s*"(\d{4}-\d{2}-\d{2})\s(\d{2}):(\d{2}):(\d{2})\sUTC"/g;
+        const resultString = inputString.replace(regex, (match, date, hours, minutes, seconds) => {
+            const utcDate = new Date(`${date}T${hours}:${minutes}:${seconds}Z`);
+            const options = {
+                timeZone: 'Europe/London',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            };
+            const britishTime = utcDate.toLocaleString('en-GB', options);
+            return `_time": "${britishTime}"`;
+        });
+        return resultString;
+    }
+
+    // Clear function to clear the textarea and the results table
+    document.getElementById('clearAll').addEventListener('click', function() {
+        document.getElementById('deviceIds').value = '';
+        document.getElementById('resultsTable').innerHTML = '';
+    });
+
+</script>
+</body>
+</html>
