@@ -12,6 +12,16 @@
             height: 1rem;
             border-width: 0.1em;
         }
+        /* Fixed width and no-wrap for first column */
+        .id-col {
+            font-size: 13px;
+            width: 150px; /* Fixed width */
+            white-space: nowrap; /* Prevent wrapping */
+        }
+        /* Smaller font for the status column */
+        .status-col {
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
@@ -92,11 +102,18 @@
         ids.forEach(id => {
             // Create a new table row for this device id
             const tr = document.createElement('tr');
+
+            // Device ID cell with fixed width and no wrapping
             const tdId = document.createElement('td');
             tdId.textContent = id;
+            tdId.classList.add("id-col");
+
+            // Status cell with smaller font
             const tdStatus = document.createElement('td');
-            // Show a loading spinner while request is in progress
+            tdStatus.classList.add("status-col");
+            // Show a loading spinner while the request is in progress
             tdStatus.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>';
+
             tr.appendChild(tdId);
             tr.appendChild(tdStatus);
             resultsTable.appendChild(tr);
@@ -144,7 +161,6 @@
                     if (i < 21) {
                     } else {
                         if (i === 21) {
-
                         } else {
                             if (res[i] !== "") {
                                 count++;
@@ -156,7 +172,6 @@
                                 $("#tb").prepend(row);
                             }
                         }
-
                     }
                 }
                 return {c:count,r:resLast};
