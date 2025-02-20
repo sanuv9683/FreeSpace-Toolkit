@@ -44,7 +44,7 @@
     </div>
 </nav>
 
-<div class="container mt-3">
+<div class="container mt-3 pb-5">
     <h1 class="text-center">Task Manager with Search</h1>
     <input type="file" id="excelUpload" accept=".xlsx, .xls" class="form-control mb-3" />
     <input type="text" id="searchBar" class="form-control mb-3" placeholder="Search for data..." disabled />
@@ -192,7 +192,7 @@
         // Add a slight delay to ensure the active tab content is fully rendered
         setTimeout(() => {
             updateColumnDropdown();
-        }, 50); // Delay of 50ms
+        }, 500); // Delay of 50ms
     });
 
     // Function to update the column dropdown based on the active tab
@@ -255,8 +255,6 @@
             }
         });
     });
-
-
 
     // Save changes to the workbook and download it
     function saveAndDownload() {
@@ -326,10 +324,6 @@
             row.style.display = matches ? '' : 'none'; // Hide rows that don't match
         });
     });
-
-
-
-
 
 </script>
 </body>
