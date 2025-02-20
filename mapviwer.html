@@ -1,5 +1,8 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfobject/2.2.8/pdfobject.min.js"></script>
-<div id="pdf-viewer"></div>
 <script>
-    PDFObject.embed('example.pdf', '#pdf-viewer');
+    const pdfViewer = new pdfjsViewer.PDFViewer({
+        container: document.getElementById('pdf-container'),
+    });
+    pdfjsLib.getDocument('example.pdf').promise.then(pdf => {
+        pdfViewer.setDocument(pdf);
+    });
 </script>
