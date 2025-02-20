@@ -2,9 +2,335 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeSpace ToolKit | </title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* Optional: Adjust the width of the exclude checkbox column */
+        table thead th:first-child,
+        table tbody td:first-child {
+            width: 50px;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <a class="navbar-brand" href="scan_devices_v1.html">Fressspace</a>
+    <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+            data-target="#navbarNav" data-toggle="collapse" type="button">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link active" href="scan_devices_v1.html">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="scan_devices_v1.html">Scan</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="device_assign.html">Assign IDs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="config_link.html">Config Link</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="allocations.html">Time Allocation</a>
+            </li>
+        </ul>
+    </div>
+</nav>
 
+<div class="container mt-3">
+    <h1 class="text-center">Task Manager with Search</h1>
+    <input type="file" id="excelUpload" accept=".xlsx, .xls" class="form-control mb-3" />
+    <input type="text" id="searchBar" class="form-control mb-3" placeholder="Search for data..." disabled />
+    <ul class="nav nav-tabs" id="sheetTabs" role="tablist"></ul>
+
+    <!-- Add this inside your container div, above the tabs -->
+    <div class="bulk-edit-section mb-3">
+        <div class="row">
+            <div class="col-12 mb-2">
+                <label for="columnSelect" class="form-label">Select Column:</label>
+                <select id="columnSelect" class="form-select" disabled>
+                    <option value="" disabled selected>Select a column</option>
+                    <!-- Options will be populated dynamically -->
+                </select>
+            </div>
+            <div class="col-12 mb-2">
+                <label for="commonValue" class="form-label">Common Value:</label>
+                <input type="text" id="commonValue" class="form-control" placeholder="Enter common value" disabled>
+            </div>
+            <div class="col-12">
+                <button id="applyChangesButton" class="btn btn-warning w-100" disabled>Apply to Selected Column</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="tab-content" id="sheetContents"></div>
+    <button id="saveDownloadButton" class="btn btn-primary w-100 mt-3" disabled>Save Changes & Download</button>
+</div>
+
+<!-- Footer Section -->
+<footer class="footer">
+    <p class="mb-0">
+        Developed by <a href="https://sanuv.uk" target="_blank">Sanu Vithanage</a> © 2025
+    </p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+    let originalWorkbook = null; // Store the uploaded workbook
+    let originalFileName = ''; // Store the original file name
+
+
+
+    // Upload and load the Excel file
+    document.getElementById('excelUpload').addEventListener('change', (event) => {
+        const file = event.target.files[0];
+        originalFileName = file.name; // Capture the original file name
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const data = new Uint8Array(e.target.result);
+            originalWorkbook = XLSX.read(data, { type: 'array' }); // Load the workbook
+            loadWorkbook(originalWorkbook);
+            document.getElementById('saveDownloadButton').disabled = false; // Enable the Save button
+            document.getElementById('searchBar').disabled = false; // Enable the search bar
+            updateColumnDropdown(); // Initialize the column dropdown
+
+            // Enable the bulk edit controls
+            document.getElementById('commonValue').disabled = false;
+            document.getElementById('applyChangesButton').disabled = false;
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+
+    // Load workbook into the app as tabs and tables
+    function loadWorkbook(workbook) {
+        const tabs = document.getElementById('sheetTabs');
+        const contents = document.getElementById('sheetContents');
+        tabs.innerHTML = '';
+        contents.innerHTML = '';
+
+        workbook.SheetNames.forEach((sheetName, index) => {
+            const sheetData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: '' });
+            if (sheetData.length === 0) return; // Skip empty sheets
+
+            // Create a tab
+            const tab = document.createElement('li');
+            tab.className = 'nav-item';
+            tab.innerHTML = `
+            <button class="nav-link ${index === 0 ? 'active' : ''}" id="tab-${index}" data-bs-toggle="tab" data-bs-target="#content-${index}" type="button" role="tab">
+                ${sheetName}
+            </button>`;
+            tabs.appendChild(tab);
+
+            // Create tab content
+            const content = document.createElement('div');
+            content.className = `tab-pane fade ${index === 0 ? 'show active' : ''}`;
+            content.id = `content-${index}`;
+            const table = renderSheet(sheetData, sheetName);
+            content.appendChild(table);
+            contents.appendChild(content);
+        });
+    }
+
+    function renderSheet(data, sheetName) {
+        const table = document.createElement('table');
+        table.className = 'table table-bordered table-striped';
+        table.setAttribute('data-sheet-name', sheetName); // Link the table to the sheet name
+        const thead = table.createTHead();
+        const tbody = table.createTBody();
+
+        // Create table headers
+        const headerRow = thead.insertRow();
+
+        // Add a header cell for the exclude checkbox
+        const excludeHeader = headerRow.insertCell();
+        excludeHeader.textContent = 'Exclude';
+
+        // Add headers from the data
+        const headers = Object.keys(data[0]);
+        headers.forEach(key => {
+            const cell = headerRow.insertCell();
+            cell.textContent = key;
+        });
+
+        // Populate table rows
+        data.forEach((row) => {
+            const tableRow = tbody.insertRow();
+
+            // Add exclude checkbox
+            const excludeCell = tableRow.insertCell();
+            const excludeCheckbox = document.createElement('input');
+            excludeCheckbox.type = 'checkbox';
+            excludeCheckbox.className = 'exclude-row-checkbox';
+            excludeCell.appendChild(excludeCheckbox);
+
+            // Add data cells
+            Object.values(row).forEach(value => {
+                const cell = tableRow.insertCell();
+                cell.contentEditable = true; // Enable editing
+                cell.textContent = value;
+            });
+        });
+
+        return table;
+    }
+
+
+    // Update column dropdown when a tab is fully activated
+    document.getElementById('sheetTabs').addEventListener('shown.bs.tab', (event) => {
+        console.log('Tab changed:', event.target); // Debugging to see which tab was activated
+
+        // Add a slight delay to ensure the active tab content is fully rendered
+        setTimeout(() => {
+            updateColumnDropdown();
+        }, 50); // Delay of 50ms
+    });
+
+    // Function to update the column dropdown based on the active tab
+    function updateColumnDropdown() {
+        const activeTab = document.querySelector('.tab-pane.show.active'); // Get the active tab
+        if (!activeTab) {
+            console.warn('No active tab found.'); // Log warning if no active tab is found
+            return;
+        }
+
+        const table = activeTab.querySelector('table'); // Get the table in the active tab
+        const columnSelect = document.getElementById('columnSelect');
+        columnSelect.innerHTML = ''; // Clear existing options
+
+        if (!table) {
+            console.warn('No table found in the active tab.'); // Log warning if no table exists
+            columnSelect.disabled = true; // Disable the dropdown
+            return;
+        }
+
+        // Get headers from the active table
+        const headers = Array.from(table.tHead.rows[0].cells)
+            .slice(1) // Skip the exclude column
+            .map(cell => cell.textContent);
+
+        // Populate the dropdown with the new headers
+        headers.forEach((header, index) => {
+            const option = document.createElement('option');
+            option.value = index; // Store the column index
+            option.textContent = header;
+            columnSelect.appendChild(option);
+        });
+
+        columnSelect.disabled = false; // Enable the dropdown
+        console.log('Column dropdown updated with headers:', headers); // Debugging the updated headers
+    }
+
+
+
+    // Add event listener for the apply changes button
+    document.getElementById('applyChangesButton').addEventListener('click', () => {
+        const columnSelect = document.getElementById('columnSelect');
+        const commonValue = document.getElementById('commonValue').value;
+        const activeTab = document.querySelector('.tab-pane.show.active');
+        const table = activeTab.querySelector('table');
+
+        if (!table || columnSelect.value === '') {
+            alert('Please select a column.');
+            return;
+        }
+
+        const columnIndex = parseInt(columnSelect.value) + 1; // +1 to account for the exclude checkbox column
+        const rows = table.tBodies[0].rows;
+
+        Array.from(rows).forEach(row => {
+            const excludeCheckbox = row.cells[0].querySelector('.exclude-row-checkbox');
+            if (!excludeCheckbox.checked) {
+                const cell = row.cells[columnIndex];
+                cell.textContent = commonValue;
+            }
+        });
+    });
+
+
+
+    // Save changes to the workbook and download it
+    function saveAndDownload() {
+        if (!originalWorkbook) {
+            alert('Please upload an Excel file first.');
+            return;
+        }
+
+        const tables = document.querySelectorAll('.tab-pane table');
+
+        tables.forEach((table) => {
+            const sheetName = table.getAttribute('data-sheet-name');
+            if (!sheetName || !originalWorkbook.Sheets[sheetName]) return;
+
+            // Collect updated data from the table
+            const data = [];
+            const headers = Array.from(table.tHead.rows[0].cells).map(cell => cell.textContent);
+            data.push(headers);
+
+            Array.from(table.tBodies[0].rows).forEach(row => {
+                const rowData = Array.from(row.cells).map(cell => cell.textContent.trim());
+                data.push(rowData);
+            });
+
+            // Convert the updated table data to a worksheet
+            const updatedWorksheet = XLSX.utils.aoa_to_sheet(data);
+
+            // Replace the existing sheet with the updated worksheet
+            originalWorkbook.Sheets[sheetName] = updatedWorksheet;
+        });
+
+        // Write the updated workbook
+        const workbookBlob = XLSX.write(originalWorkbook, { bookType: 'xlsx', type: 'binary' });
+        const buffer = new ArrayBuffer(workbookBlob.length);
+        const view = new Uint8Array(buffer);
+        for (let i = 0; i < workbookBlob.length; i++) {
+            view[i] = workbookBlob.charCodeAt(i) & 0xFF;
+        }
+        const blob = new Blob([buffer], { type: 'application/octet-stream' });
+
+        // Trigger download with the original file name
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = originalFileName; // Use the original file name
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    }
+
+    // Add event listener for the combined button
+    document.getElementById('saveDownloadButton').addEventListener('click', saveAndDownload);
+
+    // Add search functionality
+    document.getElementById('searchBar').addEventListener('input', (event) => {
+        const query = event.target.value.toLowerCase();
+        const activeTab = document.querySelector('.tab-pane.show.active');
+        const table = activeTab.querySelector('table');
+
+        if (!table) return;
+
+        const rows = table.tBodies[0].rows;
+
+        Array.from(rows).forEach(row => {
+            const cells = Array.from(row.cells);
+            const matches = cells.some(cell => cell.textContent.toLowerCase().includes(query));
+            row.style.display = matches ? '' : 'none'; // Hide rows that don't match
+        });
+    });
+
+
+
+
+
+</script>
 </body>
 </html>

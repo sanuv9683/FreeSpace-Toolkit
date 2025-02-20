@@ -88,6 +88,8 @@
     let originalWorkbook = null; // Store the uploaded workbook
     let originalFileName = ''; // Store the original file name
 
+
+
     // Upload and load the Excel file
     document.getElementById('excelUpload').addEventListener('change', (event) => {
         const file = event.target.files[0];
@@ -97,12 +99,17 @@
             const data = new Uint8Array(e.target.result);
             originalWorkbook = XLSX.read(data, { type: 'array' }); // Load the workbook
             loadWorkbook(originalWorkbook);
-            document.getElementById('saveDownloadButton').disabled = false; // Enable the button
+            document.getElementById('saveDownloadButton').disabled = false; // Enable the Save button
             document.getElementById('searchBar').disabled = false; // Enable the search bar
             updateColumnDropdown(); // Initialize the column dropdown
+
+            // Enable the bulk edit controls
+            document.getElementById('commonValue').disabled = false;
+            document.getElementById('applyChangesButton').disabled = false;
         };
         reader.readAsArrayBuffer(file);
     });
+
 
     // Load workbook into the app as tabs and tables
     function loadWorkbook(workbook) {
