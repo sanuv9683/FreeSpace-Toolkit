@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>FreeSpace Toolkit</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="css/styles.css?v=2.0" rel="stylesheet">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <a class="navbar-brand" href="scan_devices_v1.html">Fressspace</a>
+    <button aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler"
+            data-target="#navbarNav" data-toggle="collapse" type="button">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link active" href="scan_devices_v1.html">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="scan_devices_v2.html">Scan</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="device_assign_v1.html">Assign IDs</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="config_link.html">Config Link</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="allocations.html">Time Allocation</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container my-4">
+    <div class="row">
+        <!--QR Start-->
+        <div class="col-12">
+            <div class="d-flex justify-content-center">
+                <div class="row justify-content-center">
+
+                    <div class="col d-flex justify-content-center">
+                        <video height="200"  muted playsinline id="qr-video" style="display:none;"  width="300"></video>
+                    </div>
+                    <div class="col-12 d-flex justify-content-center">
+                        <!-- Floating Button -->
+                        <div class="floating-button" id="floatingButton" style="display: none">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                        <!-- Lens Selection Menu -->
+                        <div class="lens-menu" id="lensMenu">
+                            <select class="form-select" id="camera-select"></select>
+                        </div>
+                    </div>
+                </div>
+                <canvas id="qr-canvas" hidden style="display: none"></canvas>
+            </div>
+        </div>
+        <!--QR ENDS-->
+    </div>
+    <!-- Add Device Form -->
+    <div class="mb-2  sticky-top bg-white pb-2">
+        <h4>Add New Device</h4>
+        <input class="form-control mb-2" id="markerID" placeholder="Enter Map ID" type="text">
+        <div class="input-group mb-2">
+            <input class="form-control " id="deviceID" placeholder="Enter Device ID" type="text">
+            <button class="btn btn-danger" id="btnPaste" type="button"><i class="fas fa-paste"></i> P</button>
+            <button class="btn btn-primary" id="btnCpy" type="button"><i class="fas fa-copy"></i> C</button>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-primary" onclick="addDevice()">Add Device</button>
+            <button class="btn btn-danger" id="clear">Clear</button>
+            <button class="btn btn-warning" id="qrStp">.....</button>
+        </div>
+    </div>
+
+    <div class="row mb-1">
+        <div class="col-5">
+            <h4 style="padding-top: 11px;margin: 0">Device List</h4>
+        </div>
+        <div class="col-7">
+            <div class="input-group">
+                <span class="input-group-text" id="search-icon">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input aria-describedby="search-icon" aria-label="Search" class="form-control" id="searchInput"
+                       placeholder="Search" type="text">
+            </div>
+        </div>
+    </div>
+    <!-- Device List Table -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Map ID</th>
+                <th>Device ID</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody id="deviceTableBody">
+            <!-- Dynamic rows will be added here -->
+            </tbody>
+        </table>
+    </div>
+    <!-- Export and Delete All Records -->
+    <div class="mt-1 d-flex justify-content-end mb-5">
+        <div class="btn-group btn-group-sm">
+            <button class="btn btn-danger" onclick="deleteAllRecords()">Clear All</button>
+            <button class="btn btn-primary" onclick="exportToExcel()">Print</button>
+        </div>
+    </div>
+
+    <!-- Notification Sound -->
+    <audio id="notificationSound" preload="auto" src="audio/noti.mp3"></audio>
+</div>
+
+<footer class="footer">
+    <p class="mb-0">
+        Developed by <a href="https://sanuv.uk" target="_blank">Sanu Vithanage</a> © 2025
+    </p>
+</footer>
+
+<audio id="scan-sound" src="audio/success-sound.mp3"></audio>
+<script src="js/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://unpkg.com/@zxing/library@latest" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.min.js"></script>
+<script src="js/config.js"></script>
+<script type="module">
+    import {initializeApp} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import {
+        getDatabase,
+        ref,
+        set,
+        push,
+        onValue,
+        update,
+        remove
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Ask for and save the user's name on first visit
+    function initializeUser() {
+        let userName = localStorage.getItem("userName");
+        if (!userName) {
+            userName = prompt("Welcome! Please enter your name:");
+            if (userName) {
+                localStorage.setItem("userName", userName);
+                alert(`Hello, ${userName}! Your name has been saved.`);
+            }
+        }
+    }
+
+    // Add Device
+    function addDevice() {
+        const markerID = document.getElementById("markerID").value.trim();
+        const deviceID = document.getElementById("deviceID").value.trim();
+
+        if (!markerID || !deviceID) {
+            alert("Please enter both Marker ID and Device ID");
+            return;
+        }
+
+        const devicesRef = ref(database, 'devices');
+
+        // Fetch current devices to check for duplicates
+        onValue(devicesRef, (snapshot) => {
+            const data = snapshot.val();
+            let isDuplicate = false;
+
+            if (data) {
+                // Check for duplicate Marker ID or Device ID
+                Object.keys(data).forEach((key) => {
+                    const device = data[key];
+                    if (device.markerID === markerID || device.deviceID === deviceID) {
+                        isDuplicate = true;
+                    }
+                });
+            }
+
+            if (isDuplicate) {
+                alert("Duplicate Marker ID or Device ID found. Please enter unique values.");
+            } else {
+                // Proceed to add device if no duplicates are found
+                const newDeviceRef = push(devicesRef);
+                initializeUser();
+                const m_userName = localStorage.getItem("userName");
+                set(newDeviceRef, {
+                    markerID: markerID,
+                    deviceID: deviceID,
+                    userName: m_userName
+                })
+                    .then(() => {
+                        console.log("Device added successfully!");
+                        document.getElementById("markerID").value = parseInt(markerID) + 1;
+                        document.getElementById("deviceID").value = "";
+                        document.getElementById("deviceID").focus();
+
+                        camSetting();
+                        clearAll();
+                    })
+                    .catch((error) => {
+                        console.error("Error adding device:", error);
+                    });
+            }
+        }, {
+            onlyOnce: true // Ensure the listener only runs once
+        });
+    }
+
+
+    // Fetch Devices
+    function fetchDevices() {
+        const devicesRef = ref(database, 'devices');
+        onValue(devicesRef, (snapshot) => {
+            const data = snapshot.val();
+            const tableBody = document.getElementById("deviceTableBody");
+            tableBody.innerHTML = ""; // Clear the table body
+
+            if (data) {
+                let count = 1; // Row counter
+                Object.keys(data).forEach((key) => {
+                    const device = data[key];
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+            <td>${count++}</td>
+            <td>${device.markerID}</td>
+            <td><a target="_blank" href="device_data.html?id=${device.deviceID}">${device.deviceID}</a></td>
+            <td>
+              <button class="btn btn-sm btn-warning" onclick="updateDevice('${key}', '${device.markerID}', '${device.deviceID}')">Edit</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteDevice('${key}',${device.markerID})">Delete</button>
+              <span class="badge text-bg-dark" style="font-size: 5px">${device.userName}</span>
+            </td>
+          `;
+                    tableBody.appendChild(row);
+                });
+                playNotificationSound(); // Play sound when table updates
+            } else {
+                const row = document.createElement("tr");
+                row.innerHTML = '<td colspan="4" class="text-center">No devices found.</td>';
+                tableBody.appendChild(row);
+            }
+        });
+    }
+
+    // Play Notification Sound
+    function playNotificationSound() {
+        const sound = document.getElementById("notificationSound");
+        sound.play().catch((error) => {
+            console.error("Error playing notification sound:", error);
+        });
+    }
+
+    // Update Device
+    function updateDevice(deviceId, currentMarkerID, currentDeviceID) {
+        const newMarkerID = prompt("Enter new Marker ID", currentMarkerID);
+        const newDeviceID = prompt("Enter new Device ID", currentDeviceID);
+
+        if (newMarkerID === null || newDeviceID === null) {
+            return;  // User canceled the prompt
+        }
+
+        const deviceRef = ref(database, 'devices/' + deviceId);
+        update(deviceRef, {
+            markerID: newMarkerID,
+            deviceID: newDeviceID
+        })
+            .then(() => {
+                console.log("Device updated successfully!");
+            })
+            .catch((error) => {
+                console.error("Error updating device:", error);
+            });
+    }
+
+    // Delete Device
+    function deleteDevice(deviceId, mid) {
+        let res = confirm("Do you want to delete : " + mid + " ?");
+        if (res) {
+            const deviceRef = ref(database, 'devices/' + deviceId);
+            remove(deviceRef)
+                .then(() => {
+                    console.log("Device deleted successfully!");
+                })
+                .catch((error) => {
+                    console.error("Error deleting device:", error);
+                });
+        }
+    }
+
+    // Delete All Records
+    function deleteAllRecords() {
+        const password = prompt("Enter the password to delete all records:");
+        if (password === "sanu2024") {
+            const devicesRef = ref(database, 'devices');
+            remove(devicesRef)
+                .then(() => {
+                    console.log("All records deleted successfully!");
+                })
+                .catch((error) => {
+                    console.error("Error deleting all records:", error);
+                });
+        } else {
+            alert("Incorrect password! Deletion canceled.");
+        }
+    }
+
+    // Export to Excel
+    function exportToExcel() {
+        const table = document.getElementById("deviceTableBody");
+        const rows = table.querySelectorAll("tr");
+        const data = [["#", "Marker ID", "Device ID"]]; // Table headers
+
+        rows.forEach((row) => {
+            const cells = row.querySelectorAll("td");
+            if (cells.length > 0) {
+                const rowData = Array.from(cells).slice(0, 3).map((cell) => cell.textContent);
+                data.push(rowData);
+            }
+        });
+
+        const worksheet = XLSX.utils.aoa_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Devices");
+        XLSX.writeFile(workbook, "DeviceList.xlsx");
+    }
+
+    // Fetch devices on initial load
+    fetchDevices();
+    window.addDevice = addDevice;
+    window.fetchDevices = fetchDevices;
+    window.updateDevice = updateDevice;
+    window.deleteDevice = deleteDevice;
+    window.deleteAllRecords = deleteAllRecords;
+    window.exportToExcel = exportToExcel;
+    initializeUser();
+</script>
+<script>
+    const video = document.getElementById("qr-video");
+    const canvas = document.getElementById("qr-canvas");
+    const cameraSelect = document.getElementById("camera-select");
+    const scanSound = document.getElementById("scan-sound");
+
+    let currentStream = null;
+    let selectedCameraId = localStorage.getItem("selectedCameraId");
+
+    // Toggle Lens Selection Menu
+    const floatingButton = document.getElementById('floatingButton');
+    const lensMenu = document.getElementById('lensMenu');
+
+    let camOnOff = true;
+
+    // Load all available cameras
+    async function loadCameras() {
+        try {
+            // Request permission to access cameras
+            await navigator.mediaDevices.getUserMedia({ video: true });
+
+            // Enumerate all devices
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = devices.filter((device) => device.kind === "videoinput");
+
+            // Clear existing options
+            cameraSelect.innerHTML = "";
+
+            // Add each camera as an option
+            videoDevices.forEach((device, index) => {
+                const option = document.createElement("option");
+                option.value = device.deviceId;
+                option.text = device.label || `Camera ${index + 1}`;
+                if (device.deviceId === selectedCameraId) {
+                    option.selected = true;
+                }
+                cameraSelect.appendChild(option);
+            });
+
+            // If no camera is selected, default to the first one
+            if (!selectedCameraId && videoDevices.length > 0) {
+                selectedCameraId = videoDevices[0].deviceId;
+                localStorage.setItem("selectedCameraId", selectedCameraId);
+            }
+            await startCamera();
+        } catch (err) {
+            console.error("Error loading cameras:", err);
+            alert("Unable to access cameras. Please ensure you have granted permission.");
+        }
+    }
+
+    // Start the selected camera
+    async function startCamera() {
+        fadeInQr();
+        if (currentStream) {
+            currentStream.getTracks().forEach((track) => track.stop());
+        }
+
+        const constraints = {
+            video: {
+                deviceId: selectedCameraId ? { exact: selectedCameraId } : undefined,
+            },
+        };
+
+        try {
+            currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+            video.srcObject = currentStream;
+            video.play();
+            scanQRCode();
+        } catch (err) {
+            console.error("Error accessing camera:", err);
+            alert("Failed to start the selected camera. Please try another one.");
+        }
+    }
+
+    // Scan QR code
+    function scanQRCode() {
+        const context = canvas.getContext("2d");
+
+        function tick() {
+            if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.hidden = false;
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
+                if (code!=null && code.data!='' && code.data.includes("http://q.afreespace.com")) {
+                    getDeviceID(code.data);
+                    scanSound.play();
+                    fadeOutQr();
+                    stopCamera();
+                    // Add animation here (e.g., change border color or show a checkmark)
+                }
+            }
+            requestAnimationFrame(tick);
+        }
+        tick();
+    }
+
+    // Stop the camera
+    function stopCamera() {
+        if (currentStream) {
+            currentStream.getTracks().forEach((track) => track.stop());
+            currentStream = null;
+            video.srcObject = null;
+        }
+    }
+
+    // Event listeners
+    cameraSelect.addEventListener("change", () => {
+        selectedCameraId = cameraSelect.value;
+        localStorage.setItem("selectedCameraId", selectedCameraId);
+        startCamera();
+        lensMenu.style.display = 'none';
+    });
+
+    window.addEventListener('load', function () {
+        // hideLoader();
+        camSetting();
+    })
+
+    $("#qrStp").click(function () {
+        if (camOnOff === true) {
+            stopCamera();
+            fadeOutQr();
+            camOnOff = false;
+            setCam('false');
+        } else {
+            fadeInQr();
+            // startCamera();
+            loadCameras();
+            setCam('true');
+            camOnOff = true;
+        }
+
+    });
+
+    $("#clear").click(function () {
+        clearAll();
+        stopCamera();
+        camSetting();
+    });
+
+    function camSetting() {
+        let rp = localStorage.getItem('cam4');
+        if (rp == null) {
+            camOnOff = true;
+            localStorage.setItem('cam4', 'true');
+            loadCameras();
+            updateButton(true);
+        } else {
+            let rp = localStorage.getItem('cam4');
+            if (rp === 'true') {
+                loadCameras();
+                camOnOff = true;
+                updateButton(true);
+            } else if (rp === 'false') {
+                camOnOff = false;
+                updateButton(false);
+            }
+        }
+    }
+
+    function updateButton(rs) {
+        const button = document.getElementById("qrStp");
+        if (!rs) {
+            button.textContent = "Cam : On";
+        } else {
+
+            button.textContent = "Cam : Off";
+        }
+    }
+
+    function setCam(rs) {
+        localStorage.setItem('cam4', rs);
+        if (rs === 'true') updateButton(true);
+        if (rs === 'false') updateButton(false);
+    }
+
+    function fadeOutQr() {
+        $("#camera-select").css('display', 'none');
+        $("#floatingButton").css('display', 'none');
+        $("#qr-video").css('display', 'none');
+    }
+
+    function fadeInQr() {
+        $("#camera-select").css('display', 'block');
+        $("#floatingButton").css('display', 'flex');
+        $("#qr-video").css('display', 'block');
+    }
+
+    floatingButton.addEventListener('click', () => {
+        if (lensMenu.style.display === 'block') {
+            lensMenu.style.display = 'none';
+        } else {
+            lensMenu.style.display = 'block';
+        }
+    });
+
+    function clearAll() {
+        $("#deviceID").val("");
+        $("#deviceID").focus();
+    }
+
+    function getDeviceID(decodedText) {
+        $.ajax({
+            url: decodedText.replace("http://", "https://"),
+            success: function (res) {
+                let decodedID = $(res).find('#temp-table').children('tbody').children('tr:nth-child(1)').children('td:nth-child(2)').text();
+                $('#deviceID').val(formatDeviceId(decodedID));
+                stopCamera();
+                fadeOutQr();
+            }
+        });
+    }
+
+</script>
+<script>
+    const Toast = Swal.mixin({
+        toast: true,
+        position: "bottom-center",
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+        }
+    });
+    // Add search functionality
+    document.getElementById("searchInput").addEventListener("keyup", function () {
+        const query = this.value.toLowerCase(); // Get the search query
+        const rows = document.querySelectorAll("#deviceTableBody tr"); // Get all table rows
+
+        rows.forEach((row) => {
+            const markerID = row.cells[1]?.textContent.toLowerCase(); // Marker ID (2nd column)
+            const deviceID = row.cells[2]?.textContent.toLowerCase(); // Device ID (3rd column)
+
+            // Show row if query matches markerID or deviceID, otherwise hide it
+            if (markerID.includes(query) || deviceID.includes(query)) {
+                row.style.display = ""; // Show the row
+            } else {
+                row.style.display = "none"; // Hide the row
+            }
+        });
+    });
+
+    $("#btnCpy").click(function () {
+        const inputField = document.getElementById("deviceID");
+
+        // Focus the input field for Safari compatibility
+        inputField.focus();
+        inputField.select();
+        inputField.setSelectionRange(0, 99999);
+
+        // Attempt Clipboard API if supported
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(inputField.value)
+                .then(() => {
+                    Toast.fire({
+                        icon: "success",
+                        title: "Copied : " + inputField.value
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        }
+    });
+
+    document.getElementById('btnPaste').addEventListener('click', async () => {
+        try {
+            const text = await navigator.clipboard.readText(); // Read text from the clipboard
+            document.getElementById('deviceID').value =  formatDeviceId(text); // Set the input field's value to the clipboard text
+        } catch (err) {
+            console.error('Failed to paste text: ', err);
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const inputField = document.getElementById('deviceID');
+
+        // Format on user input (typing and pasting)
+        inputField.addEventListener('input', () => {
+            inputField.value = formatDeviceId(inputField.value);
+        });
+
+        // Observe value changes for programmatic updates
+        const observer = new MutationObserver(() => {
+            inputField.value = formatDeviceId(inputField.value);
+        });
+
+        observer.observe(inputField, { attributes: true, attributeFilter: ['value'] });
+
+    });
+
+    function formatDeviceId(value) {
+        // Remove all non-numeric characters
+        value = value.replace(/[^0-9]/g, '');
+
+        // Format the value as 1234-345-344
+        if (value.length > 4) {
+            value = value.slice(0, 4) + '-' + value.slice(4);
+        }
+        if (value.length > 8) {
+            value = value.slice(0, 8) + '-' + value.slice(8);
+        }
+
+        // Limit to 10 digits (formatted as 1234-345-344)
+        return value.slice(0, 12);
+    }
+</script>
+</body>
+</html>
